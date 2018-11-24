@@ -4,11 +4,13 @@ MPFR Multiprecision Floating-Point Numbers
 
 :Author: Caterina Urban
 """
-from _ctypes import Structure, POINTER
-from ctypes import c_long, c_int, c_ulonglong
+from _ctypes import Structure, POINTER, byref
+from ctypes import c_long, c_int, c_ulonglong, c_double
+from enum import IntEnum
+from apronpy.cdll import libmpfr
 
 
-class _MPFR(Structure):
+class MPFR(Structure):
     """
     typedef struct {
       mpfr_prec_t  _mpfr_prec;
@@ -24,3 +26,142 @@ class _MPFR(Structure):
         ('_mpfr_d', POINTER(c_ulonglong))
     ]
 
+    def __repr__(self):
+        return str(self._mp_d.contents.value)
+
+
+class Rnd(IntEnum):
+    """
+    typedef enum {
+      MPFR_RNDN=0,  /* round to nearest, with ties to even */
+      MPFR_RNDZ,    /* round toward zero */
+      MPFR_RNDU,    /* round toward +Inf */
+      MPFR_RNDD,    /* round toward -Inf */
+      MPFR_RNDA,    /* round away from zero */
+      MPFR_RNDF,    /* faithful rounding */
+      MPFR_RNDNA=-1 /* round to nearest, with ties away from zero (mpfr_round) */
+    } mpfr_rnd_t;
+    """
+    MPFR_RNDN = 0
+    MPFR_RNDZ = 1
+    MPFR_RNDU = 2
+    MPFR_RNDD = 3
+    MPFR_RNDA = 4
+    MPFR_RNDF = 5
+    MPFR_RNDNA = -1
+
+
+# initialization and assignment functions
+MPFR_init = libmpfr.mpfr_init
+MPFR_clear = libmpfr.mpfr_clear
+MPFR_set_d = libmpfr.mpfr_set_d
+# conversion functions
+MPFR_get_d = libmpfr.mpfr_get_d
+# comparison functions
+MPFR_cmp = libmpfr.mpfr_cmp  # -1: op1 < op2, 0: op1 == op2, 1: op1 > op2
+# arithmetic functions
+MPFR_add = libmpfr.mpfr_add
+MPFR_sub = libmpfr.mpfr_sub
+MPFR_mul = libmpfr.mpfr_mul
+MPFR_neg = libmpfr.mpfr_neg
+MPFR_abs = libmpfr.mpfr_abs
+
+
+class PyMPFR:
+
+    def __init__(self, value: float, rounding: Rnd = Rnd.MPFR_RNDN):
+        self.rounding = rounding
+        self.mpfr = MPFR()
+        MPFR_init(self)
+        MPFR_set_d(self, value, rounding)
+        
+    def __del__(self):
+        MPFR_clear(self)
+
+    @property
+    def _as_parameter_(self):
+        return byref(self.mpfr)
+
+    @staticmethod
+    def from_param(argument):
+        assert isinstance(argument, PyMPFR)
+        return argument
+
+    """
+    Conversion Functions
+    """
+
+    def __repr__(self):
+        return str(MPFR_get_d(self, self.rounding))
+
+    """
+    Comparison Functions
+    """
+
+    def __lt__(self, other: 'PyMPFR'):
+        assert isinstance(other, PyMPFR)
+        return MPFR_cmp(self, other) < 0
+
+    def __le__(self, other: 'PyMPFR'):
+        assert isinstance(other, PyMPFR)
+        return self.__lt__(other) or self.__eq__(other)
+
+    def __eq__(self, other: 'PyMPFR'):
+        assert isinstance(other, PyMPFR)
+        return MPFR_cmp(self, other) == 0
+
+    def __ne__(self, other: 'PyMPFR'):
+        assert isinstance(other, PyMPFR)
+        return not self.__eq__(other)
+
+    def __ge__(self, other: 'PyMPFR'):
+        assert isinstance(other, PyMPFR)
+        return self.__gt__(other) or self.__eq__(other)
+
+    def __gt__(self, other: 'PyMPFR'):
+        assert isinstance(other, PyMPFR)
+        return MPFR_cmp(self, other) > 0
+
+    """
+    Arithmetic Functions
+    """
+
+    def __add__(self, other: 'PyMPFR'):
+        assert isinstance(other, PyMPFR)
+        MPFR_add(self, self, other)
+        return self
+
+    def __sub__(self, other: 'PyMPFR'):
+        assert isinstance(other, PyMPFR)
+        MPFR_sub(self, self, other)
+        return self
+
+    def __mul__(self, other: 'PyMPFR'):
+        assert isinstance(other, PyMPFR)
+        MPFR_mul(self, self, other)
+        return self
+
+    def __neg__(self):
+        MPFR_neg(self, self)
+        return self
+
+    def __abs__(self):
+        MPFR_abs(self, self)
+        return self
+
+
+# initialization and assignment functions
+MPFR_init.argtypes = [PyMPFR]
+MPFR_clear.argtypes = [PyMPFR]
+MPFR_set_d.argtypes = [PyMPFR, c_double, c_int]
+# conversion functions
+MPFR_get_d.argtypes = [PyMPFR, c_int]
+MPFR_get_d.restype = c_double
+# comparison functions
+MPFR_cmp.argtypes = [PyMPFR, PyMPFR]
+# arithmetic functions
+MPFR_add.argtypes = [PyMPFR, PyMPFR, PyMPFR]
+MPFR_sub.argtypes = [PyMPFR, PyMPFR, PyMPFR]
+MPFR_mul.argtypes = [PyMPFR, PyMPFR, PyMPFR]
+MPFR_neg.argtypes = [PyMPFR, PyMPFR]
+MPFR_abs.argtypes = [PyMPFR, PyMPFR]
