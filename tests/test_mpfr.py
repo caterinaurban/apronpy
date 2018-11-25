@@ -12,6 +12,7 @@ class TestMPFR(unittest.TestCase):
 
     def test_initialization_assignment_conversion(self):
         self.assertEqual(str(PyMPFR(9)), '9.0')
+        self.assertEqual(str(PyMPFR(-9)), '-9.0')
 
     def test_arithmetic(self):
         self.assertEqual(PyMPFR(9) + PyMPFR(3), PyMPFR(9 + 3))

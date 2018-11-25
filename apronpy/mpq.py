@@ -10,23 +10,6 @@ from apronpy.mpz import MPZ
 from apronpy.cdll import libgmp
 
 
-class MPQ(Structure):
-    """
-    typedef struct
-    {
-      __mpz_struct _mp_num;
-      __mpz_struct _mp_den;
-    } __mpq_struct;
-    """
-    _fields_ = [
-        ('_mp_num', MPZ),
-        ('_mp_den', MPZ)
-    ]
-
-    def __repr__(self):
-        return '{}/{}'.format(self._mp_num, self._mp_den)
-
-
 MPQ_canonicalize = libgmp.__gmpq_canonicalize
 # initialization functions
 MPQ_init = libgmp.__gmpq_init
@@ -43,6 +26,23 @@ MPQ_sub = libgmp.__gmpq_sub
 MPQ_mul = libgmp.__gmpq_mul
 MPQ_neg = libgmp.__gmpq_neg
 MPQ_abs = libgmp.__gmpq_abs
+
+
+class MPQ(Structure):
+    """
+    typedef struct
+    {
+      __mpz_struct _mp_num;
+      __mpz_struct _mp_den;
+    } __mpq_struct;
+    """
+    _fields_ = [
+        ('_mp_num', MPZ),
+        ('_mp_den', MPZ)
+    ]
+
+    def __repr__(self):
+        return '{}/{}'.format(self._mp_num, self._mp_den)
 
 
 class PyMPQ:

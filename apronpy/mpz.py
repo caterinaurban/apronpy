@@ -9,6 +9,21 @@ from ctypes import c_int, c_ulonglong, c_double, c_char_p
 from apronpy.cdll import libgmp
 
 
+# initialization and assignment functions
+MPZ_clear = libgmp.__gmpz_clear
+MPZ_init_set_d = libgmp.__gmpz_init_set_d
+# conversion functions
+MPZ_get_str = libgmp.__gmpz_get_str
+# comparison functions
+MPZ_cmp = libgmp.__gmpz_cmp  # -1: op1 < op2, 0: op1 == op2, 1: op1 > op2
+# arithmetic functions
+MPZ_add = libgmp.__gmpz_add
+MPZ_sub = libgmp.__gmpz_sub
+MPZ_mul = libgmp.__gmpz_mul
+MPZ_neg = libgmp.__gmpz_neg
+MPZ_abs = libgmp.__gmpz_abs
+
+
 class MPZ(Structure):
     """
     typedef struct
@@ -25,22 +40,9 @@ class MPZ(Structure):
     ]
 
     def __repr__(self):
-        return str(self._mp_d.contents.value)
-
-
-# initialization and assignment functions
-MPZ_clear = libgmp.__gmpz_clear
-MPZ_init_set_d = libgmp.__gmpz_init_set_d
-# conversion functions
-MPZ_get_str = libgmp.__gmpz_get_str
-# comparison functions
-MPZ_cmp = libgmp.__gmpz_cmp  # -1: op1 < op2, 0: op1 == op2, 1: op1 > op2
-# arithmetic functions
-MPZ_add = libgmp.__gmpz_add
-MPZ_sub = libgmp.__gmpz_sub
-MPZ_mul = libgmp.__gmpz_mul
-MPZ_neg = libgmp.__gmpz_neg
-MPZ_abs = libgmp.__gmpz_abs
+        if self._mp_size < 0:
+            return '-{}'.format(self._mp_d.contents.value)
+        return '{}'.format(self._mp_d.contents.value)
 
 
 class PyMPZ:

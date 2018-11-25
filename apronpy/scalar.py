@@ -7,8 +7,7 @@ APRON Scalar Numbers
 from abc import ABCMeta
 from ctypes import *
 from enum import IntEnum
-
-from apronpy.mpfr import MPFR, PyMPFR
+from apronpy.mpfr import MPFR, PyMPFR, Rnd
 from apronpy.mpq import PyMPQ, MPQ
 from apronpy.cdll import libapron
 
@@ -66,14 +65,6 @@ class Scalar(Structure):
             return str(self.val.dbl)
 
 
-libapron.ap_scalar_alloc_set_double.argtypes = [c_double]
-libapron.ap_scalar_alloc_set_double.restype = POINTER(Scalar)
-libapron.ap_scalar_alloc_set_mpq.argtypes = [PyMPQ]
-libapron.ap_scalar_alloc_set_mpq.restype = POINTER(Scalar)
-libapron.ap_scalar_alloc_set_mpfr.argtypes = [PyMPFR]
-libapron.ap_scalar_alloc_set_mpfr.restype = POINTER(Scalar)
-
-
 class PyScalar(metaclass=ABCMeta):
 
     def __init__(self, value, discr: Discr = Discr.AP_SCALAR_DOUBLE):
@@ -103,9 +94,7 @@ class PyScalar(metaclass=ABCMeta):
         return argument
 
     def __repr__(self):
-        if self.scalar.contents.discr == Discr.AP_SCALAR_MPQ and self.sign() == -1:
-            return "-" + str(self.scalar.contents)
-        return str(self.scalar.contents)
+        return '{}'.format(self.scalar.contents)
 
     """Tests"""
 
@@ -148,6 +137,12 @@ class PyScalar(metaclass=ABCMeta):
         return self
 
 
+libapron.ap_scalar_alloc_set_double.argtypes = [c_double]
+libapron.ap_scalar_alloc_set_double.restype = POINTER(Scalar)
+libapron.ap_scalar_alloc_set_mpq.argtypes = [PyMPQ]
+libapron.ap_scalar_alloc_set_mpq.restype = POINTER(Scalar)
+libapron.ap_scalar_alloc_set_mpfr.argtypes = [PyMPFR]
+libapron.ap_scalar_alloc_set_mpfr.restype = POINTER(Scalar)
 libapron.ap_scalar_set_infty.argtypes = [PyScalar, c_int]
 libapron.ap_scalar_free.argtypes = [PyScalar]
 libapron.ap_scalar_infty.argtypes = [PyScalar]
@@ -176,7 +171,7 @@ class PyMPQScalar(PyScalar):
 
 class PyMPFRScalar(PyScalar):
 
-    def __init__(self, value, rounding):
+    def __init__(self, value, rounding: Rnd = Rnd.MPFR_RNDN):
         if isinstance(value, PyMPFR):
             super().__init__(discr=Discr.AP_SCALAR_MPFR, value=value)
         else:

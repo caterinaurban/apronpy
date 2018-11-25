@@ -10,6 +10,22 @@ from enum import IntEnum
 from apronpy.cdll import libmpfr
 
 
+# initialization and assignment functions
+MPFR_init = libmpfr.mpfr_init
+MPFR_clear = libmpfr.mpfr_clear
+MPFR_set_d = libmpfr.mpfr_set_d
+# conversion functions
+MPFR_get_d = libmpfr.mpfr_get_d
+# comparison functions
+MPFR_cmp = libmpfr.mpfr_cmp  # -1: op1 < op2, 0: op1 == op2, 1: op1 > op2
+# arithmetic functions
+MPFR_add = libmpfr.mpfr_add
+MPFR_sub = libmpfr.mpfr_sub
+MPFR_mul = libmpfr.mpfr_mul
+MPFR_neg = libmpfr.mpfr_neg
+MPFR_abs = libmpfr.mpfr_abs
+
+
 class MPFR(Structure):
     """
     typedef struct {
@@ -27,7 +43,7 @@ class MPFR(Structure):
     ]
 
     def __repr__(self):
-        return str(self._mp_d.contents.value)
+        return '{}'.format(MPFR_get_d(self, 0))
 
 
 class Rnd(IntEnum):
@@ -49,22 +65,6 @@ class Rnd(IntEnum):
     MPFR_RNDA = 4
     MPFR_RNDF = 5
     MPFR_RNDNA = -1
-
-
-# initialization and assignment functions
-MPFR_init = libmpfr.mpfr_init
-MPFR_clear = libmpfr.mpfr_clear
-MPFR_set_d = libmpfr.mpfr_set_d
-# conversion functions
-MPFR_get_d = libmpfr.mpfr_get_d
-# comparison functions
-MPFR_cmp = libmpfr.mpfr_cmp  # -1: op1 < op2, 0: op1 == op2, 1: op1 > op2
-# arithmetic functions
-MPFR_add = libmpfr.mpfr_add
-MPFR_sub = libmpfr.mpfr_sub
-MPFR_mul = libmpfr.mpfr_mul
-MPFR_neg = libmpfr.mpfr_neg
-MPFR_abs = libmpfr.mpfr_abs
 
 
 class PyMPFR:
@@ -92,7 +92,7 @@ class PyMPFR:
     """
 
     def __repr__(self):
-        return str(MPFR_get_d(self, self.rounding))
+        return '{}'.format(MPFR_get_d(self.mpfr, 0))
 
     """
     Comparison Functions
@@ -155,7 +155,7 @@ MPFR_init.argtypes = [PyMPFR]
 MPFR_clear.argtypes = [PyMPFR]
 MPFR_set_d.argtypes = [PyMPFR, c_double, c_int]
 # conversion functions
-MPFR_get_d.argtypes = [PyMPFR, c_int]
+MPFR_get_d.argtypes = [POINTER(MPFR), c_int]
 MPFR_get_d.restype = c_double
 # comparison functions
 MPFR_cmp.argtypes = [PyMPFR, PyMPFR]
