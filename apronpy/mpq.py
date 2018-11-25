@@ -5,7 +5,7 @@ GMP Multi-Precision Rationals
 :Author: Caterina Urban
 """
 from _ctypes import Structure, byref
-from ctypes import c_int, c_char_p, c_long
+from ctypes import c_int, c_char_p, c_long, c_ulong
 from apronpy.mpz import MPZ
 from apronpy.cdll import libgmp
 
@@ -50,7 +50,7 @@ class PyMPQ:
     def __init__(self, numerator: int = 0, denominator: int = 1):
         self.mpq = MPQ()
         MPQ_init(self)
-        MPQ_set_si(self, numerator, denominator)
+        MPQ_set_si(self, c_long(numerator), c_ulong(denominator))
         MPQ_canonicalize(self)
 
     def __del__(self):
@@ -133,7 +133,7 @@ MPQ_canonicalize.argtypes = [PyMPQ]
 MPQ_init.argtypes = [PyMPQ]
 MPQ_clear.argtypes = [PyMPQ]
 # assignment functions
-MPQ_set_si.argtypes = [PyMPQ, c_long, c_long]
+MPQ_set_si.argtypes = [PyMPQ, c_long, c_ulong]
 # conversion functions
 MPQ_get_str.argtypes = [c_char_p, c_int, PyMPQ]
 MPQ_get_str.restype = c_char_p

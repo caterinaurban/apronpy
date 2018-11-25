@@ -14,6 +14,11 @@ from apronpy.scalar import PyDoubleScalar, PyMPQScalar, PyMPFRScalar
 class TestPyDoubleScalar(unittest.TestCase):
 
     def test_init(self):
+        self.assertEqual(str(PyDoubleScalar()), '0.0')
+        self.assertEqual(str(PyDoubleScalar(0)), '0.0')
+        self.assertEqual(str(PyDoubleScalar(0.0)), '0.0')
+        self.assertEqual(str(PyDoubleScalar(c_double(0))), '0.0')
+        self.assertEqual(str(PyDoubleScalar(c_double(0.0))), '0.0')
         self.assertEqual(str(PyDoubleScalar(-9)), '-9.0')
         self.assertEqual(str(PyDoubleScalar(c_double(-9))), '-9.0')
         self.assertEqual(str(PyDoubleScalar(9)), '9.0')
@@ -61,6 +66,11 @@ class TestPyDoubleScalar(unittest.TestCase):
 class TestPyMPQScalar(unittest.TestCase):
 
     def test_initialization(self):
+        self.assertNotEqual(str(PyMPQScalar()), '0/1')  # !
+        self.assertNotEqual(str(PyMPQScalar(0)), '0/1')  # !
+        self.assertNotEqual(str(PyMPQScalar(0, 1)), '0/1')  # !
+        self.assertNotEqual(str(PyMPQScalar(PyMPQ(0))), '0/1')  # !
+        self.assertNotEqual(str(PyMPQScalar(PyMPQ(0, 1))), '0/1')  # !
         self.assertEqual(str(PyMPQScalar(-9)), '-9/1')
         self.assertEqual(str(PyMPQScalar(PyMPQ(-9))), '-9/1')
         self.assertEqual(str(PyMPQScalar(9)), '9/1')
@@ -97,6 +107,10 @@ class TestPyMPQScalar(unittest.TestCase):
 class TestPyMPFRScalar(unittest.TestCase):
 
     def test_init(self):
+        self.assertEqual(str(PyMPFRScalar(0)), '0.0')
+        self.assertEqual(str(PyMPFRScalar(0.0)), '0.0')
+        self.assertEqual(str(PyMPFRScalar(PyMPFR(0))), '0.0')
+        self.assertEqual(str(PyMPFRScalar(PyMPFR(0.0))), '0.0')
         self.assertEqual(str(PyMPFRScalar(-9)), '-9.0')
         self.assertEqual(str(PyMPFRScalar(PyMPFR(-9))), '-9.0')
         self.assertEqual(str(PyMPFRScalar(9)), '9.0')
@@ -104,13 +118,13 @@ class TestPyMPFRScalar(unittest.TestCase):
         self.assertEqual(str(PyMPFRScalar(0.5)), '0.5')
         self.assertEqual(str(PyMPFRScalar(PyMPFR(0.5))), '0.5')
         self.assertEqual(str(PyMPFRScalar.init_infty(-9)), '-inf')
-        self.assertEqual(str(PyMPFRScalar.init_infty(0)), 'inf')                        # !
+        self.assertEqual(str(PyMPFRScalar.init_infty(0)), 'inf')  # !
         self.assertEqual(str(PyMPFRScalar.init_infty(9)), 'inf')
 
     def test_infty(self):
         self.assertEqual(PyMPFRScalar(9).infty(), 0)
         self.assertEqual(PyMPFRScalar.init_infty(-9).infty(), -1)
-        self.assertEqual(PyMPFRScalar.init_infty(0).infty(), 1)                         # !
+        self.assertEqual(PyMPFRScalar.init_infty(0).infty(), 1)  # !
         self.assertEqual(PyMPFRScalar.init_infty(9).infty(), 1)
 
     def test_cmp(self):
@@ -123,10 +137,10 @@ class TestPyMPFRScalar(unittest.TestCase):
         self.assertEqual(PyMPFRScalar(PyMPFR(-9)).sign(), -1)
         self.assertEqual(PyMPFRScalar(9).sign(), 1)
         self.assertEqual(PyMPFRScalar(PyMPFR(9)).sign(), 1)
-        self.assertEqual(PyMPFRScalar(0).sign(), -1)                                    # !
-        self.assertEqual(PyMPFRScalar(PyMPFR(0)).sign(), -1)                            # !
+        self.assertEqual(PyMPFRScalar(0).sign(), -1)  # !
+        self.assertEqual(PyMPFRScalar(PyMPFR(0)).sign(), -1)  # !
         self.assertEqual(PyMPFRScalar.init_infty(-9).sign(), -1)
-        self.assertEqual(PyMPFRScalar.init_infty(0).sign(), 1)                          # !
+        self.assertEqual(PyMPFRScalar.init_infty(0).sign(), 1)  # !
         self.assertEqual(PyMPFRScalar.init_infty(9).sign(), 1)
 
     def test_neg(self):
@@ -137,7 +151,7 @@ class TestPyMPFRScalar(unittest.TestCase):
         self.assertEqual(-PyMPFRScalar(0), PyMPFRScalar(0))
         self.assertEqual(-PyMPFRScalar(PyMPFR(0)), PyMPFRScalar(PyMPFR(0)))
         self.assertEqual(-PyMPFRScalar.init_infty(-9), PyMPFRScalar.init_infty(9))
-        self.assertNotEqual(-PyMPFRScalar.init_infty(0), PyMPFRScalar.init_infty(0))    # !
+        self.assertNotEqual(-PyMPFRScalar.init_infty(0), PyMPFRScalar.init_infty(0))  # !
         self.assertEqual(-PyMPFRScalar.init_infty(9), PyMPFRScalar.init_infty(-9))
 
 

@@ -6,8 +6,8 @@ GMP Multi-Precision Integers
 """
 from _ctypes import Structure, POINTER, byref
 from ctypes import c_int, c_ulonglong, c_double, c_char_p
-from apronpy.cdll import libgmp
 
+from apronpy.cdll import libgmp
 
 # initialization and assignment functions
 MPZ_clear = libgmp.__gmpz_clear
@@ -47,9 +47,9 @@ class MPZ(Structure):
 
 class PyMPZ:
 
-    def __init__(self, value: float = 0.0):
+    def __init__(self, value: float = 0):
         self.mpz = MPZ()
-        MPZ_init_set_d(self, value)
+        MPZ_init_set_d(self, c_double(value))
 
     def __del__(self):
         MPZ_clear(self)

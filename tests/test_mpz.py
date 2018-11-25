@@ -11,6 +11,8 @@ from apronpy.mpz import PyMPZ
 class TestMPZ(unittest.TestCase):
 
     def test_initialization_assignment_conversion(self):
+        self.assertEqual(str(PyMPZ()), '0')
+        self.assertEqual(str(PyMPZ(0.0)), '0')
         self.assertEqual(str(PyMPZ(9)), '9')
 
     def test_arithmetic(self):
