@@ -70,18 +70,16 @@ class TestDoubleInterval(unittest.TestCase):
 class TestMPQInterval(unittest.TestCase):
 
     def test_init(self):
-        self.assertNotEqual(str(PyMPQInterval()), '[0/1,0/1]')  # !
-        self.assertNotEqual(str(PyMPQInterval(0, 0)), '[0/1,0/1]')  # !
-        self.assertNotEqual(str(PyMPQInterval(0, 0, 1, 1)), '[0/1,0/1]')  # !
-        self.assertNotEqual(str(PyMPQInterval(PyMPQScalar(0), PyMPQScalar(0))), '[0/1,0/1]')  # !
-        self.assertNotEqual(
-            str(PyMPQInterval(PyMPQScalar(0, 1), PyMPQScalar(0, 1))), '[0/1,0/1]'
-        )  # !
+        self.assertEqual(str(PyMPQInterval()), '[0,0]')
+        self.assertEqual(str(PyMPQInterval(0, 0)), '[0,0]')
+        self.assertEqual(str(PyMPQInterval(0, 0, 1, 1)), '[0,0]')
+        self.assertEqual(str(PyMPQInterval(PyMPQScalar(0), PyMPQScalar(0))), '[0,0]')
+        self.assertEqual(str(PyMPQInterval(PyMPQScalar(0, 1), PyMPQScalar(0, 1))), '[0,0]')
         self.assertEqual(str(PyMPQInterval(-1, 1, 2, 2)), '[-1/2,1/2]')
         self.assertEqual(str(PyMPQInterval(PyMPQ(-1, 2), PyMPQ(1, 2))), '[-1/2,1/2]')
         self.assertEqual(str(PyMPQInterval(PyMPQScalar(-1, 2), PyMPQScalar(1, 2))), '[-1/2,1/2]')
         self.assertEqual(str(PyMPQInterval.init_top()), '[-1/0,1/0]')
-        self.assertEqual(str(PyMPQInterval.init_bottom()), '[1/1,-1/1]')
+        self.assertEqual(str(PyMPQInterval.init_bottom()), '[1,-1]')
 
     # def test_infty(self):
     #     self.assertEqual(PyDoubleScalar(9).infty(), 0)

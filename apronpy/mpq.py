@@ -4,11 +4,11 @@ GMP Multi-Precision Rationals
 
 :Author: Caterina Urban
 """
-from _ctypes import Structure, byref
+from _ctypes import Structure, byref, POINTER
 from ctypes import c_int, c_char_p, c_long, c_ulong
-from apronpy.mpz import MPZ
-from apronpy.cdll import libgmp
 
+from apronpy.cdll import libgmp
+from apronpy.mpz import MPZ
 
 MPQ_canonicalize = libgmp.__gmpq_canonicalize
 # initialization functions
@@ -42,7 +42,7 @@ class MPQ(Structure):
     ]
 
     def __repr__(self):
-        return '{}/{}'.format(self._mp_num, self._mp_den)
+        return MPQ_get_str(None, 10, self).decode("utf-8")
 
 
 class PyMPQ:
@@ -70,7 +70,7 @@ class PyMPQ:
     """
 
     def __repr__(self):
-        return MPQ_get_str(None, 10, self).decode("utf-8")
+        return MPQ_get_str(None, 10, self.mpq).decode("utf-8")
 
     """
     Comparison Functions
@@ -135,7 +135,7 @@ MPQ_clear.argtypes = [PyMPQ]
 # assignment functions
 MPQ_set_si.argtypes = [PyMPQ, c_long, c_ulong]
 # conversion functions
-MPQ_get_str.argtypes = [c_char_p, c_int, PyMPQ]
+MPQ_get_str.argtypes = [c_char_p, c_int, POINTER(MPQ)]
 MPQ_get_str.restype = c_char_p
 # comparison functions
 MPQ_cmp.argtypes = [PyMPQ, PyMPQ]

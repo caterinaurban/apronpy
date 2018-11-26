@@ -40,9 +40,7 @@ class MPZ(Structure):
     ]
 
     def __repr__(self):
-        if self._mp_size < 0:
-            return '-{}'.format(self._mp_d.contents.value)
-        return '{}'.format(self._mp_d.contents.value)
+        return MPZ_get_str(None, 10, self).decode("utf-8")
 
 
 class PyMPZ:
@@ -68,7 +66,7 @@ class PyMPZ:
     """
 
     def __repr__(self):
-        return MPZ_get_str(None, 10, self).decode("utf-8")
+        return MPZ_get_str(None, 10, self.mpz).decode("utf-8")
 
     """
     Comparison Functions
@@ -130,7 +128,7 @@ class PyMPZ:
 MPZ_clear.argtypes = [PyMPZ]
 MPZ_init_set_d.argtypes = [PyMPZ, c_double]
 # conversion functions
-MPZ_get_str.argtypes = [c_char_p, c_int, PyMPZ]
+MPZ_get_str.argtypes = [c_char_p, c_int, POINTER(MPZ)]
 MPZ_get_str.restype = c_char_p
 # comparison functions
 MPZ_cmp.argtypes = [PyMPZ, PyMPZ]

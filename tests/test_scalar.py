@@ -66,19 +66,19 @@ class TestPyDoubleScalar(unittest.TestCase):
 class TestPyMPQScalar(unittest.TestCase):
 
     def test_initialization(self):
-        self.assertNotEqual(str(PyMPQScalar()), '0/1')  # !
-        self.assertNotEqual(str(PyMPQScalar(0)), '0/1')  # !
-        self.assertNotEqual(str(PyMPQScalar(0, 1)), '0/1')  # !
-        self.assertNotEqual(str(PyMPQScalar(PyMPQ(0))), '0/1')  # !
-        self.assertNotEqual(str(PyMPQScalar(PyMPQ(0, 1))), '0/1')  # !
-        self.assertEqual(str(PyMPQScalar(-9)), '-9/1')
-        self.assertEqual(str(PyMPQScalar(PyMPQ(-9))), '-9/1')
-        self.assertEqual(str(PyMPQScalar(9)), '9/1')
-        self.assertEqual(str(PyMPQScalar(PyMPQ(9))), '9/1')
+        self.assertEqual(str(PyMPQScalar()), '0')
+        self.assertEqual(str(PyMPQScalar(0)), '0')
+        self.assertEqual(str(PyMPQScalar(0, 1)), '0')
+        self.assertEqual(str(PyMPQScalar(PyMPQ(0))), '0')
+        self.assertEqual(str(PyMPQScalar(PyMPQ(0, 1))), '0')
+        self.assertEqual(str(PyMPQScalar(-9)), '-9')
+        self.assertEqual(str(PyMPQScalar(PyMPQ(-9))), '-9')
+        self.assertEqual(str(PyMPQScalar(9)), '9')
+        self.assertEqual(str(PyMPQScalar(PyMPQ(9))), '9')
         self.assertEqual(str(PyMPQScalar(1, 2)), '1/2')
         self.assertEqual(str(PyMPQScalar(PyMPQ(1, 2))), '1/2')
         self.assertEqual(str(PyMPQScalar.init_infty(-9)), '-9/0')
-        self.assertEqual(str(PyMPQScalar.init_infty(0)), '0/1')
+        self.assertEqual(str(PyMPQScalar.init_infty(0)), '0')
         self.assertEqual(str(PyMPQScalar.init_infty(9)), '9/0')
     
     def test_infty(self):
