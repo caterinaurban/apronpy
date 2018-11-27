@@ -8,7 +8,7 @@ import unittest
 from apronpy.mpq import PyMPQ
 
 
-class TestMPQ(unittest.TestCase):
+class TestPyMPQ(unittest.TestCase):
 
     def test_initialization_assignment_conversion(self):
         self.assertEqual(str(PyMPQ()), '0')

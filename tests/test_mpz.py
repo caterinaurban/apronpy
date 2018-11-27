@@ -8,7 +8,7 @@ import unittest
 from apronpy.mpz import PyMPZ
 
 
-class TestMPZ(unittest.TestCase):
+class TestPyMPZ(unittest.TestCase):
 
     def test_initialization_assignment_conversion(self):
         self.assertEqual(str(PyMPZ()), '0')

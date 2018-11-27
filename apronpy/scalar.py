@@ -12,7 +12,7 @@ from apronpy.mpq import PyMPQ, MPQ
 from apronpy.cdll import libapron
 
 
-class Discr(IntEnum):
+class ScalarDiscr(IntEnum):
     """
     typedef enum ap_scalar_discr_t {
       AP_SCALAR_DOUBLE, /* double-precision floating-point number */
@@ -45,6 +45,7 @@ class Scalar(Structure):
           mpfr_ptr mpfr;
         } val;
         """
+
         _fields_ = [
             ('dbl', c_double),
             ('mpq_ptr', POINTER(MPQ)),
@@ -57,20 +58,20 @@ class Scalar(Structure):
     ]
 
     def __repr__(self):
-        if self.discr == Discr.AP_SCALAR_MPQ:
-            return str(self.val.mpq_ptr.contents)
-        elif self.discr == Discr.AP_SCALAR_MPFR:
-            return str(self.val.mpfr_ptr.contents)
+        if self.discr == ScalarDiscr.AP_SCALAR_MPQ:
+            return '{}'.format(self.val.mpq_ptr.contents)
+        elif self.discr == ScalarDiscr.AP_SCALAR_MPFR:
+            return '{}'.format(self.val.mpfr_ptr.contents)
         else:  # self.discr == Discr.AP_SCALAR_DOUBLE
-            return str(self.val.dbl)
+            return '{}'.format(self.val.dbl)
 
 
 class PyScalar(metaclass=ABCMeta):
 
-    def __init__(self, value, discr: Discr = Discr.AP_SCALAR_DOUBLE):
-        if discr == Discr.AP_SCALAR_MPQ:
+    def __init__(self, value, discr: ScalarDiscr = ScalarDiscr.AP_SCALAR_DOUBLE):
+        if discr == ScalarDiscr.AP_SCALAR_MPQ:
             self.scalar = libapron.ap_scalar_alloc_set_mpq(value)
-        elif discr == Discr.AP_SCALAR_MPFR:
+        elif discr == ScalarDiscr.AP_SCALAR_MPFR:
             self.scalar = libapron.ap_scalar_alloc_set_mpfr(value)
         else:  # discr == Discr.AP_SCALAR_DOUBLE
             self.scalar = libapron.ap_scalar_alloc_set_double(value)
@@ -155,24 +156,24 @@ class PyDoubleScalar(PyScalar):
 
     def __init__(self, value=0.0):
         if isinstance(value, c_double):
-            super().__init__(discr=Discr.AP_SCALAR_DOUBLE, value=value)
+            super().__init__(discr=ScalarDiscr.AP_SCALAR_DOUBLE, value=value)
         else:
-            super().__init__(discr=Discr.AP_SCALAR_DOUBLE, value=c_double(value))
+            super().__init__(discr=ScalarDiscr.AP_SCALAR_DOUBLE, value=c_double(value))
 
 
 class PyMPQScalar(PyScalar):
 
     def __init__(self, numerator=0, denumerator=1):
         if isinstance(numerator, PyMPQ):
-            super().__init__(discr=Discr.AP_SCALAR_MPQ, value=numerator)
+            super().__init__(discr=ScalarDiscr.AP_SCALAR_MPQ, value=numerator)
         else:
-            super().__init__(discr=Discr.AP_SCALAR_MPQ, value=PyMPQ(numerator, denumerator))
+            super().__init__(discr=ScalarDiscr.AP_SCALAR_MPQ, value=PyMPQ(numerator, denumerator))
 
 
 class PyMPFRScalar(PyScalar):
 
     def __init__(self, value, rounding: Rnd = Rnd.MPFR_RNDN):
         if isinstance(value, PyMPFR):
-            super().__init__(discr=Discr.AP_SCALAR_MPFR, value=value)
+            super().__init__(discr=ScalarDiscr.AP_SCALAR_MPFR, value=value)
         else:
-            super().__init__(discr=Discr.AP_SCALAR_MPFR, value=PyMPFR(value, rounding))
+            super().__init__(discr=ScalarDiscr.AP_SCALAR_MPFR, value=PyMPFR(value, rounding))

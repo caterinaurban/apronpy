@@ -21,6 +21,7 @@ class Interval(Structure):
       ap_scalar_t* sup;
     } ap_interval_t;
     """
+
     _fields_ = [
         ('inf', POINTER(Scalar)),
         ('sup', POINTER(Scalar))

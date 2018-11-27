@@ -8,7 +8,7 @@ import unittest
 from apronpy.mpfr import PyMPFR
 
 
-class TestMPFR(unittest.TestCase):
+class TestPyMPFR(unittest.TestCase):
 
     def test_initialization_assignment_conversion(self):
         self.assertEqual(str(PyMPFR(9)), '9.0')

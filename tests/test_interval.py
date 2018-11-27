@@ -13,7 +13,7 @@ from apronpy.mpq import PyMPQ
 from apronpy.scalar import PyDoubleScalar, PyMPQScalar, PyMPFRScalar
 
 
-class TestDoubleInterval(unittest.TestCase):
+class TestPyDoubleInterval(unittest.TestCase):
 
     def test_init(self):
         self.assertEqual(str(PyDoubleInterval()), '[0.0,0.0]')
@@ -93,7 +93,7 @@ class TestDoubleInterval(unittest.TestCase):
         self.assertEqual(-PyDoubleInterval.init_top(), PyDoubleInterval.init_top())
 
 
-class TestMPQInterval(unittest.TestCase):
+class TestPyMPQInterval(unittest.TestCase):
 
     def test_init(self):
         self.assertEqual(str(PyMPQInterval()), '[0,0]')
@@ -161,7 +161,7 @@ class TestMPQInterval(unittest.TestCase):
         self.assertEqual(-PyMPQInterval.init_top(), PyMPQInterval.init_top())
 
 
-class TestMPFRInterval(unittest.TestCase):
+class TestPyMPFRInterval(unittest.TestCase):
 
     def test_init(self):
         self.assertEqual(str(PyMPFRInterval(0, 0)), '[0.0,0.0]')
