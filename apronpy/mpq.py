@@ -10,6 +10,7 @@ from ctypes import c_int, c_char_p, c_long, c_ulong
 from apronpy.cdll import libgmp
 from apronpy.mpz import MPZ
 
+
 MPQ_canonicalize = libgmp.__gmpq_canonicalize
 # initialization functions
 MPQ_init = libgmp.__gmpq_init

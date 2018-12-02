@@ -7,6 +7,7 @@ APRON Scalar Numbers
 from abc import ABCMeta
 from ctypes import *
 from enum import IntEnum
+
 from apronpy.mpfr import MPFR, PyMPFR, Rnd
 from apronpy.mpq import PyMPQ, MPQ
 from apronpy.cdll import libapron

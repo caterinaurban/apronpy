@@ -5,6 +5,7 @@ GMP Multi-Precision Rationals - Unit Tests
 :Author: Caterina Urban
 """
 import unittest
+
 from apronpy.mpq import PyMPQ
 
 

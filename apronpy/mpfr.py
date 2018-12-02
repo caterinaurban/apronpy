@@ -7,6 +7,7 @@ MPFR Multiprecision Floating-Point Numbers
 from _ctypes import Structure, POINTER, byref
 from ctypes import c_long, c_int, c_ulonglong, c_double
 from enum import IntEnum
+
 from apronpy.cdll import libmpfr
 
 

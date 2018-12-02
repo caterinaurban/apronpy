@@ -6,6 +6,7 @@ APRON Scalar Numbers - Unit Tests
 """
 import unittest
 from ctypes import c_double
+
 from apronpy.mpfr import PyMPFR
 from apronpy.mpq import PyMPQ
 from apronpy.scalar import PyDoubleScalar, PyMPQScalar, PyMPFRScalar

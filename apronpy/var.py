@@ -6,6 +6,7 @@ APRON (String) Variables
 """
 from _ctypes import Structure
 from ctypes import CFUNCTYPE, c_int, c_char_p, c_void_p
+
 from apronpy.cdll import libapron
 
 
