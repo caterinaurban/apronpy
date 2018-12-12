@@ -37,12 +37,12 @@ class PyVar:
 
     @property
     def _as_parameter_(self):
-        return self.var.encode("utf-8")
+        return self.var.encode('utf-8')
 
     @staticmethod
     def from_param(argument):
         assert isinstance(argument, PyVar)
-        return argument
+        return argument.var.encode('utf-8')
 
     def __repr__(self):
         return self.var
