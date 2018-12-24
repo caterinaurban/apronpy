@@ -162,10 +162,11 @@ class PyEnvironment:
         assert isinstance(other, PyEnvironment)
         d1 = DimChange()
         d2 = DimChange()
-        self.environment = libapron.ap_environment_lce(self, other, byref(d1), byref(d2))
-        if not self.environment:
+        environment = PyEnvironment()
+        environment.environment = libapron.ap_environment_lce(self, other, byref(d1), byref(d2))
+        if not environment.environment:
             raise ValueError('incompatible environments')
-        return self
+        return environment
 
     def union(self, other: 'PyEnvironment'):
         assert isinstance(other, PyEnvironment)

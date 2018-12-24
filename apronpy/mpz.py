@@ -102,26 +102,31 @@ class PyMPZ:
 
     def __add__(self, other: 'PyMPZ'):
         assert isinstance(other, PyMPZ)
-        MPZ_add(self, self, other)
-        return self
+        mpz = type(self)(0)
+        MPZ_add(mpz, self, other)
+        return mpz
 
     def __sub__(self, other: 'PyMPZ'):
         assert isinstance(other, PyMPZ)
-        MPZ_sub(self, self, other)
-        return self
+        mpz = type(self)(0)
+        MPZ_sub(mpz, self, other)
+        return mpz
 
     def __mul__(self, other: 'PyMPZ'):
         assert isinstance(other, PyMPZ)
-        MPZ_mul(self, self, other)
-        return self
+        mpz = type(self)(0)
+        MPZ_mul(mpz, self, other)
+        return mpz
 
     def __neg__(self):
-        MPZ_neg(self, self)
-        return self
+        mpz = type(self)(0)
+        MPZ_neg(mpz, self)
+        return mpz
 
     def __abs__(self):
-        MPZ_abs(self, self)
-        return self
+        mpz = type(self)(0)
+        MPZ_abs(mpz, self)
+        return mpz
 
 
 # initialization and assignment functions

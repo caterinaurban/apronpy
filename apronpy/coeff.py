@@ -114,8 +114,12 @@ class PyCoeff(metaclass=ABCMeta):
     """Other Operations"""
 
     def __neg__(self):
-        libapron.ap_coeff_neg(self, self)
-        return self
+        if self.coeff.contents.discr == CoeffDiscr.AP_COEFF_INTERVAL:
+            coeff = type(self)(0, 0)
+        else:  # self.coeff.contents.discr == CoefficientDiscr.AP_COEFF_SCALAR
+            coeff = type(self)(0)
+        libapron.ap_coeff_neg(coeff, self)
+        return coeff
 
 
 libapron.ap_coeff_alloc.argtypes = [c_uint]

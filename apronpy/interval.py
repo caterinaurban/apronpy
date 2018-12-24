@@ -45,13 +45,13 @@ class PyInterval(metaclass=ABCMeta):
             libapron.ap_interval_set_scalar(self, inf, sup)
 
     @classmethod
-    def init_top(cls):
+    def top(cls):
         interval = cls(0, 0)
         libapron.ap_interval_set_top(interval)
         return interval
 
     @classmethod
-    def init_bottom(cls):
+    def bottom(cls):
         interval = cls(0, 0)
         libapron.ap_interval_set_bottom(interval)
         return interval
@@ -106,8 +106,9 @@ class PyInterval(metaclass=ABCMeta):
     """Other Operations"""
 
     def __neg__(self):
-        libapron.ap_interval_neg(self, self)
-        return self
+        interval = type(self)(0, 0)
+        libapron.ap_interval_neg(interval, self)
+        return interval
 
 
 libapron.ap_interval_alloc.restype = POINTER(Interval)

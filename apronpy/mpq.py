@@ -107,26 +107,31 @@ class PyMPQ:
 
     def __add__(self, other: 'PyMPQ'):
         assert isinstance(other, PyMPQ)
-        MPQ_add(self, self, other)
-        return self
+        mpq = type(self)(0, 1)
+        MPQ_add(mpq, self, other)
+        return mpq
 
     def __sub__(self, other: 'PyMPQ'):
         assert isinstance(other, PyMPQ)
-        MPQ_sub(self, self, other)
-        return self
+        mpq = type(self)(0, 1)
+        MPQ_sub(mpq, self, other)
+        return mpq
 
     def __mul__(self, other: 'PyMPQ'):
         assert isinstance(other, PyMPQ)
-        MPQ_mul(self, self, other)
-        return self
+        mpq = type(self)(0, 1)
+        MPQ_mul(mpq, self, other)
+        return mpq
 
     def __neg__(self):
-        MPQ_neg(self, self)
-        return self
+        mpq = type(self)(0, 1)
+        MPQ_neg(mpq, self)
+        return mpq
 
     def __abs__(self):
-        MPQ_abs(self, self)
-        return self
+        mpq = type(self)(0, 1)
+        MPQ_abs(mpq, self)
+        return mpq
 
 
 MPQ_canonicalize.argtypes = [PyMPQ]

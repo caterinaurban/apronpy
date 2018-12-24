@@ -129,26 +129,31 @@ class PyMPFR:
 
     def __add__(self, other: 'PyMPFR'):
         assert isinstance(other, PyMPFR)
-        MPFR_add(self, self, other)
-        return self
+        mpfr = type(self)(0)
+        MPFR_add(mpfr, self, other)
+        return mpfr
 
     def __sub__(self, other: 'PyMPFR'):
         assert isinstance(other, PyMPFR)
-        MPFR_sub(self, self, other)
-        return self
+        mpfr = type(self)(0)
+        MPFR_sub(mpfr, self, other)
+        return mpfr
 
     def __mul__(self, other: 'PyMPFR'):
         assert isinstance(other, PyMPFR)
-        MPFR_mul(self, self, other)
-        return self
+        mpfr = type(self)(0)
+        MPFR_mul(mpfr, self, other)
+        return mpfr
 
     def __neg__(self):
-        MPFR_neg(self, self)
-        return self
+        mpfr = type(self)(0)
+        MPFR_neg(mpfr, self)
+        return mpfr
 
     def __abs__(self):
-        MPFR_abs(self, self)
-        return self
+        mpfr = type(self)(0)
+        MPFR_abs(mpfr, self)
+        return mpfr
 
 
 # initialization and assignment functions

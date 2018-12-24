@@ -135,8 +135,9 @@ class PyScalar(metaclass=ABCMeta):
     """Other Operations"""
 
     def __neg__(self):
-        libapron.ap_scalar_neg(self, self)
-        return self
+        scalar = type(self)(0)
+        libapron.ap_scalar_neg(scalar, self)
+        return scalar
 
 
 libapron.ap_scalar_alloc_set_double.argtypes = [c_double]
