@@ -124,6 +124,7 @@ class PyCoeff(metaclass=ABCMeta):
 
 libapron.ap_coeff_alloc.argtypes = [c_uint]
 libapron.ap_coeff_alloc.restype = POINTER(Coeff)
+libapron.ap_coeff_set.argtypes = [POINTER(Coeff), PyCoeff]
 libapron.ap_coeff_set_scalar.argtypes = [PyCoeff, PyScalar]
 libapron.ap_coeff_set_interval.argtypes = [PyCoeff, PyInterval]
 libapron.ap_coeff_cmp.argtypes = [PyCoeff, PyCoeff]
