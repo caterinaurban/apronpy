@@ -98,8 +98,6 @@ class PyScalar(metaclass=ABCMeta):
     def __repr__(self):
         return '{}'.format(self.scalar.contents)
 
-    """Tests"""
-
     def infty(self):
         """-1: -infty, 0: finite; 1: +infty"""
         return libapron.ap_scalar_infty(self)
@@ -132,9 +130,7 @@ class PyScalar(metaclass=ABCMeta):
         """-1: negative, 0: null, +1: positive"""
         return libapron.ap_scalar_sgn(self)
 
-    """Other Operations"""
-
-    def __neg__(self):
+    def __neg__(self) -> 'PyScalar':
         scalar = type(self)(0)
         libapron.ap_scalar_neg(scalar, self)
         return scalar

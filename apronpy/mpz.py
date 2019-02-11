@@ -61,16 +61,8 @@ class PyMPZ:
         assert isinstance(argument, PyMPZ)
         return argument
 
-    """
-    Conversion Functions
-    """
-
     def __repr__(self):
         return MPZ_get_str(None, 10, self.mpz).decode("utf-8")
-
-    """
-    Comparison Functions
-    """
 
     def __lt__(self, other: 'PyMPZ'):
         assert isinstance(other, PyMPZ)
@@ -96,34 +88,30 @@ class PyMPZ:
         assert isinstance(other, PyMPZ)
         return MPZ_cmp(self, other) > 0
 
-    """
-    Arithmetic Functions
-    """
-
-    def __add__(self, other: 'PyMPZ'):
+    def __add__(self, other: 'PyMPZ') -> 'PyMPZ':
         assert isinstance(other, PyMPZ)
         mpz = type(self)(0)
         MPZ_add(mpz, self, other)
         return mpz
 
-    def __sub__(self, other: 'PyMPZ'):
+    def __sub__(self, other: 'PyMPZ') -> 'PyMPZ':
         assert isinstance(other, PyMPZ)
         mpz = type(self)(0)
         MPZ_sub(mpz, self, other)
         return mpz
 
-    def __mul__(self, other: 'PyMPZ'):
+    def __mul__(self, other: 'PyMPZ') -> 'PyMPZ':
         assert isinstance(other, PyMPZ)
         mpz = type(self)(0)
         MPZ_mul(mpz, self, other)
         return mpz
 
-    def __neg__(self):
+    def __neg__(self) -> 'PyMPZ':
         mpz = type(self)(0)
         MPZ_neg(mpz, self)
         return mpz
 
-    def __abs__(self):
+    def __abs__(self) -> 'PyMPZ':
         mpz = type(self)(0)
         MPZ_abs(mpz, self)
         return mpz

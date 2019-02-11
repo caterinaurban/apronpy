@@ -71,8 +71,6 @@ class PyInterval(metaclass=ABCMeta):
     def __repr__(self):
         return str(self.interval.contents)
 
-    """Tests"""
-    
     def is_bottom(self):
         return bool(libapron.ap_interval_is_bottom(self))
     
@@ -103,9 +101,7 @@ class PyInterval(metaclass=ABCMeta):
     def is_top(self):
         return bool(libapron.ap_interval_is_top(self))
 
-    """Other Operations"""
-
-    def __neg__(self):
+    def __neg__(self) -> 'PyInterval':
         interval = type(self)(0, 0)
         libapron.ap_interval_neg(interval, self)
         return interval

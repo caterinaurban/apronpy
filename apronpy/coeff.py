@@ -85,8 +85,6 @@ class PyCoeff(metaclass=ABCMeta):
     def __repr__(self):
         return str(self.coeff.contents)
 
-    """Tests"""
-
     def __lt__(self, other: 'PyCoeff'):
         assert isinstance(other, PyCoeff)
         return libapron.ap_coeff_cmp(self, other) == -1
@@ -111,9 +109,7 @@ class PyCoeff(metaclass=ABCMeta):
         assert isinstance(other, PyCoeff)
         return libapron.ap_coeff_cmp(self, other) == 1
 
-    """Other Operations"""
-
-    def __neg__(self):
+    def __neg__(self) -> 'PyCoeff':
         if self.coeff.contents.discr == CoeffDiscr.AP_COEFF_INTERVAL:
             coeff = type(self)(0, 0)
         else:  # self.coeff.contents.discr == CoefficientDiscr.AP_COEFF_SCALAR
@@ -124,7 +120,7 @@ class PyCoeff(metaclass=ABCMeta):
 
 libapron.ap_coeff_alloc.argtypes = [c_uint]
 libapron.ap_coeff_alloc.restype = POINTER(Coeff)
-libapron.ap_coeff_set.argtypes = [POINTER(Coeff), PyCoeff]
+libapron.ap_coeff_set.argtypes = [POINTER(Coeff), POINTER(Coeff)]
 libapron.ap_coeff_set_scalar.argtypes = [PyCoeff, PyScalar]
 libapron.ap_coeff_set_interval.argtypes = [PyCoeff, PyInterval]
 libapron.ap_coeff_cmp.argtypes = [PyCoeff, PyCoeff]

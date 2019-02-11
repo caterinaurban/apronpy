@@ -88,16 +88,8 @@ class PyMPFR:
         assert isinstance(argument, PyMPFR)
         return argument
 
-    """
-    Conversion Functions
-    """
-
     def __repr__(self):
         return '{}'.format(MPFR_get_d(self.mpfr, 0))
-
-    """
-    Comparison Functions
-    """
 
     def __lt__(self, other: 'PyMPFR'):
         assert isinstance(other, PyMPFR)
@@ -123,34 +115,30 @@ class PyMPFR:
         assert isinstance(other, PyMPFR)
         return MPFR_cmp(self, other) > 0
 
-    """
-    Arithmetic Functions
-    """
-
-    def __add__(self, other: 'PyMPFR'):
+    def __add__(self, other: 'PyMPFR') -> 'PyMPFR':
         assert isinstance(other, PyMPFR)
         mpfr = type(self)(0)
         MPFR_add(mpfr, self, other)
         return mpfr
 
-    def __sub__(self, other: 'PyMPFR'):
+    def __sub__(self, other: 'PyMPFR') -> 'PyMPFR':
         assert isinstance(other, PyMPFR)
         mpfr = type(self)(0)
         MPFR_sub(mpfr, self, other)
         return mpfr
 
-    def __mul__(self, other: 'PyMPFR'):
+    def __mul__(self, other: 'PyMPFR') -> 'PyMPFR':
         assert isinstance(other, PyMPFR)
         mpfr = type(self)(0)
         MPFR_mul(mpfr, self, other)
         return mpfr
 
-    def __neg__(self):
+    def __neg__(self) -> 'PyMPFR':
         mpfr = type(self)(0)
         MPFR_neg(mpfr, self)
         return mpfr
 
-    def __abs__(self):
+    def __abs__(self) -> 'PyMPFR':
         mpfr = type(self)(0)
         MPFR_abs(mpfr, self)
         return mpfr

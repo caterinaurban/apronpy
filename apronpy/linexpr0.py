@@ -8,6 +8,7 @@ from _ctypes import Structure, Union, POINTER
 from ctypes import c_uint, c_size_t
 from enum import IntEnum
 
+from apronpy.cdll import libapron
 from apronpy.coeff import Coeff
 from apronpy.dimension import Dim
 
@@ -73,12 +74,5 @@ class Linexpr0(Structure):
         ('p', P)
     ]
 
-    def __repr__(self):
-        result = ''
-        # result += '+'.join(self.var_of_dim[i].decode('utf-8') for i in range(self.size))
-        # result += '|'
-        # result += ','.join(
-        #     self.var_of_dim[self.intdim + i].decode('utf-8') for i in range(self.realdim)
-        # )
-        # result += '}'
-        return result
+
+libapron.ap_linexpr0_minimize.argtypes = [POINTER(Linexpr0)]

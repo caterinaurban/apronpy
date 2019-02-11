@@ -29,6 +29,27 @@ class Linexpr1(Structure):
         ('env', POINTER(Environment))
     ]
 
+    def __repr__(self):
+        linexpr0 = self.linexpr0.contents
+        env = self.env.contents
+        result = ''
+        if linexpr0.discr == LinexprDiscr.AP_LINEXPR_DENSE:
+            result += ' + '.join(
+                '{}·{}'.format(linexpr0.p.coeff[i], env.var_of_dim[i].decode('utf-8'))
+                for i in range(linexpr0.size)
+            )
+            result += ' + {}'.format(linexpr0.cst) if result else '{}'.format(linexpr0.cst)
+        else:   # self.discr == LinexprDiscr.AP_LINEXPR_SPARSE:
+            terms = list()
+            for i in range(linexpr0.size):
+                coeff = linexpr0.p.linterm[i].coeff
+                dim = linexpr0.p.linterm[i].dim.value
+                if dim < linexpr0.size:
+                    terms.append('{}·{}'.format(coeff, env.var_of_dim[dim].decode('utf-8')))
+            result += ' + '.join(terms)
+            result += ' + {}'.format(linexpr0.cst) if result else '{}'.format(linexpr0.cst)
+        return result.replace('+ -', '- ')
+
 
 class PyLinexpr1:
 
@@ -47,7 +68,8 @@ class PyLinexpr1:
         assert isinstance(argument, PyLinexpr1)
         return argument
 
-    """Tests"""
+    def __repr__(self):
+        return '{}'.format(self.linexpr1)
 
     def is_integer(self):
         linexpr0 = self.linexpr1.linexpr0
@@ -67,14 +89,37 @@ class PyLinexpr1:
         linexpr0 = self.linexpr1.linexpr0
         return bool(libapron.ap_linexpr0_is_quasilinear(linexpr0))
 
+    def get_cst(self):
+        cst = self.linexpr1.linexpr0.contents.cst
+        if cst.discr == CoeffDiscr.AP_COEFF_INTERVAL:
+            if cst.val.interval.contents.inf.contents.discr == ScalarDiscr.AP_SCALAR_MPQ:
+                result = PyMPQIntervalCoeff()
+            elif cst.val.interval.contents.inf.contents.discr == ScalarDiscr.AP_SCALAR_MPFR:
+                result = PyMPFRIntervalCoeff(0, 0)
+            else:  # cst.val.interval.contents.inf.contents.discr == ScalarDiscr.AP_SCALAR_DOUBLE
+                result = PyDoubleIntervalCoeff()
+        else:  # CoeffDiscr.AP_COEFF_SCALAR
+            if cst.val.scalar.contents.discr == ScalarDiscr.AP_SCALAR_MPQ:
+                result = PyMPQScalarCoeff()
+            elif cst.val.scalar.contents.discr == ScalarDiscr.AP_SCALAR_MPFR:
+                result = PyMPFRScalarCoeff(0)
+            else:  # cst.val.scalar.contents.discr == ScalarDiscr.AP_SCALAR_DOUBLE
+                result = PyDoubleScalarCoeff()
+        libapron.ap_coeff_set(result.coeff, self.linexpr1.linexpr0.contents.cst)
+        return result
+
+    def set_cst(self, cst: PyCoeff):
+        libapron.ap_coeff_set(byref(self.linexpr1.linexpr0.contents.cst), cst.coeff)
+
     def get_coeff(self, var: PyVar):
         coeff = libapron.ap_linexpr1_coeffref(self, var._as_parameter_)
         if coeff.contents.discr == CoeffDiscr.AP_COEFF_INTERVAL:
-            if coeff.contents.val.interval.contents.inf.contents.discr == ScalarDiscr.AP_SCALAR_MPQ:
+            discr = coeff.contents.val.interval.contents.inf.contents.discr
+            if discr == ScalarDiscr.AP_SCALAR_MPQ:
                 result = PyMPQIntervalCoeff()
-            elif coeff.contents.val.interval.contents.inf.contents.discr == ScalarDiscr.AP_SCALAR_MPFR:
+            elif discr == ScalarDiscr.AP_SCALAR_MPFR:
                 result = PyMPFRIntervalCoeff(0, 0)
-            else:  # coeff.contents.val.interval.contents.inf.contents.discr == ScalarDiscr.AP_SCALAR_DOUBLE
+            else:  # discr == ScalarDiscr.AP_SCALAR_DOUBLE
                 result = PyDoubleIntervalCoeff()
         else:  # CoeffDiscr.AP_COEFF_SCALAR
             if coeff.contents.val.scalar.contents.discr == ScalarDiscr.AP_SCALAR_MPQ:
@@ -87,7 +132,7 @@ class PyLinexpr1:
         return result
 
     def set_coeff(self, var: PyVar, coeff: PyCoeff):
-        libapron.ap_coeff_set(libapron.ap_linexpr1_coeffref(self, var._as_parameter_), coeff)
+        libapron.ap_coeff_set(libapron.ap_linexpr1_coeffref(self, var._as_parameter_), coeff.coeff)
 
 
 libapron.ap_linexpr1_make.argtypes = [PyEnvironment, c_uint, c_size_t]

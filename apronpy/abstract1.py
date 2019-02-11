@@ -72,7 +72,7 @@ class PyAbstract1(metaclass=ABCMeta):
         return argument
 
     @property
-    def environment(self):
+    def environment(self) -> 'PyEnvironment':
         environment = PyEnvironment()
         environment.environment = libapron.ap_abstract1_environment(self.manager, self)
         return environment

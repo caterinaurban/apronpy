@@ -89,12 +89,6 @@ class PyEnvironment:
         assert isinstance(argument, PyEnvironment)
         return argument
 
-    def __repr__(self):
-        return str(self.environment.contents)
-
-    def __len__(self):
-        return self.environment.contents.intdim + self.environment.contents.realdim
-
     # noinspection PyTypeChecker
     def add(self, int_vars: List[PyVar] = None, real_vars: List[PyVar] = None):
         if int_vars:
@@ -117,6 +111,21 @@ class PyEnvironment:
         return self
 
     # noinspection PyTypeChecker
+    def rename(self, old_vars: List[PyVar], new_vars: List[PyVar]):
+        o_size = len(old_vars)
+        n_size = len(new_vars)
+        assert o_size == n_size
+        old_typ: Type = c_char_p * o_size
+        old_arr = old_typ(*(x._as_parameter_ for x in old_vars))
+        new_typ: Type = c_char_p * o_size
+        new_arr = new_typ(*(x._as_parameter_ for x in new_vars))
+        p = DimPerm()
+        self.environment = libapron.ap_environment_rename(self, old_arr, new_arr, o_size, p)
+        if not self.environment:
+            raise ValueError('invalid renaming')
+        return self
+
+    # noinspection PyTypeChecker
     def remove(self, del_vars: List[PyVar] = None):
         if del_vars:
             size = len(del_vars)
@@ -129,6 +138,12 @@ class PyEnvironment:
         if not self.environment:
             raise ValueError('non-existing variable(s)')
         return self
+
+    def __repr__(self):
+        return str(self.environment.contents)
+
+    def __len__(self):
+        return self.environment.contents.intdim + self.environment.contents.realdim
 
     def __contains__(self, item: 'PyVar'):
         assert isinstance(item, PyVar)
@@ -158,7 +173,7 @@ class PyEnvironment:
         assert isinstance(other, PyEnvironment)
         return libapron.ap_environment_compare(self, other) == 1
 
-    def __or__(self, other: 'PyEnvironment'):
+    def __or__(self, other: 'PyEnvironment') -> 'PyEnvironment':
         assert isinstance(other, PyEnvironment)
         d1 = DimChange()
         d2 = DimChange()
@@ -168,24 +183,9 @@ class PyEnvironment:
             raise ValueError('incompatible environments')
         return environment
 
-    def union(self, other: 'PyEnvironment'):
+    def union(self, other: 'PyEnvironment') -> 'PyEnvironment':
         assert isinstance(other, PyEnvironment)
         return self.__or__(other)
-
-    # noinspection PyTypeChecker
-    def rename(self, old_vars: List[PyVar], new_vars: List[PyVar]):
-        o_size = len(old_vars)
-        n_size = len(new_vars)
-        assert o_size == n_size
-        old_typ: Type = c_char_p * o_size
-        old_arr = old_typ(*(x._as_parameter_ for x in old_vars))
-        new_typ: Type = c_char_p * o_size
-        new_arr = new_typ(*(x._as_parameter_ for x in new_vars))
-        p = DimPerm()
-        self.environment = libapron.ap_environment_rename(self, old_arr, new_arr, o_size, p)
-        if not self.environment:
-            raise ValueError('invalid renaming')
-        return self
 
 
 pyvar_p = POINTER(c_char_p)

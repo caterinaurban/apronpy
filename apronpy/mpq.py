@@ -66,16 +66,8 @@ class PyMPQ:
         assert isinstance(argument, PyMPQ)
         return argument
 
-    """
-    Conversion Functions
-    """
-
     def __repr__(self):
         return MPQ_get_str(None, 10, self.mpq).decode("utf-8")
-
-    """
-    Comparison Functions
-    """
 
     def __lt__(self, other: 'PyMPQ'):
         assert isinstance(other, PyMPQ)
@@ -101,34 +93,30 @@ class PyMPQ:
         assert isinstance(other, PyMPQ)
         return MPQ_cmp(self, other) > 0
 
-    """
-    Arithmetic Functions
-    """
-
-    def __add__(self, other: 'PyMPQ'):
+    def __add__(self, other: 'PyMPQ') -> 'PyMPQ':
         assert isinstance(other, PyMPQ)
         mpq = type(self)(0, 1)
         MPQ_add(mpq, self, other)
         return mpq
 
-    def __sub__(self, other: 'PyMPQ'):
+    def __sub__(self, other: 'PyMPQ') -> 'PyMPQ':
         assert isinstance(other, PyMPQ)
         mpq = type(self)(0, 1)
         MPQ_sub(mpq, self, other)
         return mpq
 
-    def __mul__(self, other: 'PyMPQ'):
+    def __mul__(self, other: 'PyMPQ') -> 'PyMPQ':
         assert isinstance(other, PyMPQ)
         mpq = type(self)(0, 1)
         MPQ_mul(mpq, self, other)
         return mpq
 
-    def __neg__(self):
+    def __neg__(self) -> 'PyMPQ':
         mpq = type(self)(0, 1)
         MPQ_neg(mpq, self)
         return mpq
 
-    def __abs__(self):
+    def __abs__(self) -> 'PyMPQ':
         mpq = type(self)(0, 1)
         MPQ_abs(mpq, self)
         return mpq
