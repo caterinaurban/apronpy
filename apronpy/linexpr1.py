@@ -137,6 +137,8 @@ class PyLinexpr1:
 
 libapron.ap_linexpr1_make.argtypes = [PyEnvironment, c_uint, c_size_t]
 libapron.ap_linexpr1_make.restype = Linexpr1
+libapron.ap_linexpr1_copy.argtypes = [PyLinexpr1]
+libapron.ap_linexpr1_copy.restype = Linexpr1
 libapron.ap_linexpr1_clear.argtypes = [PyLinexpr1]
 libapron.ap_linexpr0_is_integer.argtypes = [POINTER(Linexpr0), c_size_t]
 libapron.ap_linexpr0_is_real.argtypes = [POINTER(Linexpr0), c_size_t]

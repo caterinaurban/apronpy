@@ -27,6 +27,19 @@ class ConsTyp(IntEnum):
     AP_CONS_EQMOD = 3
     AP_CONS_DISEQ = 4
 
+    def __repr__(self):
+        if self.value == 0:
+            return '=='
+        elif self.value == 1:
+            return '>='
+        elif self.value == 2:
+            return '>'
+        elif self.value == 3:
+            return '%='
+        elif self.value == 4:
+            return '!='
+        return ValueError('no matching constraint type')
+
 
 class Lincons0(Structure):
     """
@@ -38,7 +51,7 @@ class Lincons0(Structure):
     """
 
     _fields_ = [
-        ('linexpro0', POINTER(Linexpr0)),
+        ('linexpr0', POINTER(Linexpr0)),
         ('constyp', c_uint),
         ('scalar', POINTER(Scalar))
     ]

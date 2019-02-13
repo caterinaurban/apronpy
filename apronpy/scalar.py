@@ -136,6 +136,8 @@ class PyScalar(metaclass=ABCMeta):
         return scalar
 
 
+libapron.ap_scalar_alloc.restype = POINTER(Scalar)
+libapron.ap_scalar_set.argtypes = [POINTER(Scalar), PyScalar]
 libapron.ap_scalar_alloc_set_double.argtypes = [c_double]
 libapron.ap_scalar_alloc_set_double.restype = POINTER(Scalar)
 libapron.ap_scalar_alloc_set_mpq.argtypes = [PyMPQ]
