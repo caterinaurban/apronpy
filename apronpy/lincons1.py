@@ -10,9 +10,9 @@ from apronpy.cdll import libapron
 from apronpy.coeff import PyDoubleScalarCoeff
 from apronpy.environment import Environment, PyEnvironment
 from apronpy.lincons0 import Lincons0, ConsTyp
-from apronpy.linexpr0 import Linexpr0, LinexprDiscr
+from apronpy.linexpr0 import LinexprDiscr
 from apronpy.linexpr1 import PyLinexpr1
-from apronpy.scalar import PyScalar, c_uint, Scalar, PyDoubleScalar
+from apronpy.scalar import PyScalar, c_uint
 
 
 class Lincons1(Structure):
