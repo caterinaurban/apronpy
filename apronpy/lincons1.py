@@ -5,14 +5,18 @@ APRON Linear Constraints (Level 1)
 :Author: Caterina Urban
 """
 from _ctypes import Structure, POINTER, byref
+from ctypes import c_char_p
 
 from apronpy.cdll import libapron
-from apronpy.coeff import PyDoubleScalarCoeff
+from apronpy.coeff import PyDoubleScalarCoeff, CoeffDiscr, PyMPQIntervalCoeff, \
+    PyMPFRIntervalCoeff, \
+    PyDoubleIntervalCoeff, PyMPQScalarCoeff, PyMPFRScalarCoeff, PyCoeff, Coeff
 from apronpy.environment import Environment, PyEnvironment
 from apronpy.lincons0 import Lincons0, ConsTyp
 from apronpy.linexpr0 import LinexprDiscr
 from apronpy.linexpr1 import PyLinexpr1
-from apronpy.scalar import PyScalar, c_uint
+from apronpy.scalar import PyScalar, c_uint, ScalarDiscr
+from apronpy.var import PyVar
 
 
 class Lincons1(Structure):
@@ -90,7 +94,64 @@ class PyLincons1:
     def __repr__(self):
         return '{}'.format(self.lincons1)
 
+    def is_unsat(self):
+        return bool(libapron.ap_lincons0_is_unsat(self.lincons1.lincons0))
+
+    def get_typ(self):
+        return ConsTyp(self.lincons1.lincons0.constyp)
+
+    def set_typ(self, typ: ConsTyp):
+        self.lincons1.lincons0.constyp = c_uint(typ)
+
+    def get_cst(self):
+        cst = self.lincons1.lincons0.linexpr0.contents.cst
+        if cst.discr == CoeffDiscr.AP_COEFF_INTERVAL:
+            if cst.val.interval.contents.inf.contents.discr == ScalarDiscr.AP_SCALAR_MPQ:
+                result = PyMPQIntervalCoeff()
+            elif cst.val.interval.contents.inf.contents.discr == ScalarDiscr.AP_SCALAR_MPFR:
+                result = PyMPFRIntervalCoeff(0, 0)
+            else:  # cst.val.interval.contents.inf.contents.discr == ScalarDiscr.AP_SCALAR_DOUBLE
+                result = PyDoubleIntervalCoeff()
+        else:  # CoeffDiscr.AP_COEFF_SCALAR
+            if cst.val.scalar.contents.discr == ScalarDiscr.AP_SCALAR_MPQ:
+                result = PyMPQScalarCoeff()
+            elif cst.val.scalar.contents.discr == ScalarDiscr.AP_SCALAR_MPFR:
+                result = PyMPFRScalarCoeff(0)
+            else:  # cst.val.scalar.contents.discr == ScalarDiscr.AP_SCALAR_DOUBLE
+                result = PyDoubleScalarCoeff()
+        libapron.ap_coeff_set(result.coeff, self.lincons1.lincons0.linexpr0.contents.cst)
+        return result
+
+    def set_cst(self, cst: PyCoeff):
+        libapron.ap_coeff_set(byref(self.lincons1.lincons0.linexpr0.contents.cst), cst.coeff)
+
+    def get_coeff(self, var: PyVar):
+        coeff = libapron.ap_lincons1_coeffref(self, var._as_parameter_)
+        if coeff.contents.discr == CoeffDiscr.AP_COEFF_INTERVAL:
+            discr = coeff.contents.val.interval.contents.inf.contents.discr
+            if discr == ScalarDiscr.AP_SCALAR_MPQ:
+                result = PyMPQIntervalCoeff()
+            elif discr == ScalarDiscr.AP_SCALAR_MPFR:
+                result = PyMPFRIntervalCoeff(0, 0)
+            else:  # discr == ScalarDiscr.AP_SCALAR_DOUBLE
+                result = PyDoubleIntervalCoeff()
+        else:  # CoeffDiscr.AP_COEFF_SCALAR
+            if coeff.contents.val.scalar.contents.discr == ScalarDiscr.AP_SCALAR_MPQ:
+                result = PyMPQScalarCoeff()
+            elif coeff.contents.val.scalar.contents.discr == ScalarDiscr.AP_SCALAR_MPFR:
+                result = PyMPFRScalarCoeff(0)
+            else:  # coeff.contents.val.scalar.contents.discr == ScalarDiscr.AP_SCALAR_DOUBLE
+                result = PyDoubleScalarCoeff()
+        libapron.ap_lincons1_get_coeff(result.coeff, self, var._as_parameter_)
+        return result
+
+    def set_coeff(self, var: PyVar, coeff: PyCoeff):
+        libapron.ap_coeff_set(libapron.ap_lincons1_coeffref(self, var._as_parameter_), coeff.coeff)
+
 
 libapron.ap_lincons1_make_unsat.argtypes = [PyEnvironment]
 libapron.ap_lincons1_make_unsat.restype = Lincons1
 libapron.ap_lincons1_clear.argtypes = [PyLincons1]
+libapron.ap_lincons1_coeffref.argtypes = [PyLincons1, c_char_p]
+libapron.ap_lincons1_coeffref.restype = POINTER(Coeff)
+libapron.ap_lincons1_get_coeff.argtypes = [POINTER(Coeff), PyLincons1, c_char_p]

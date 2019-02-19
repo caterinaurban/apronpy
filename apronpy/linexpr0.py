@@ -76,3 +76,7 @@ class Linexpr0(Structure):
 
 
 libapron.ap_linexpr0_minimize.argtypes = [POINTER(Linexpr0)]
+libapron.ap_linexpr0_is_integer.argtypes = [POINTER(Linexpr0), c_size_t]
+libapron.ap_linexpr0_is_real.argtypes = [POINTER(Linexpr0), c_size_t]
+libapron.ap_linexpr0_is_linear.argtypes = [POINTER(Linexpr0)]
+libapron.ap_linexpr0_is_quasilinear.argtypes = [POINTER(Linexpr0)]

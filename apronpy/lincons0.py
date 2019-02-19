@@ -7,6 +7,7 @@ APRON Linear Constraints (Level 0)
 from _ctypes import Structure, POINTER
 from enum import IntEnum
 
+from apronpy.cdll import libapron
 from apronpy.linexpr0 import Linexpr0
 from apronpy.scalar import Scalar, c_uint, c_size_t
 
@@ -69,3 +70,6 @@ class Lincons0Array(Structure):
         ('p', POINTER(Lincons0)),
         ('size', c_size_t)
     ]
+
+
+libapron.ap_lincons0_is_unsat.argtypes = [POINTER(Lincons0)]
