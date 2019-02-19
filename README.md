@@ -7,8 +7,21 @@ Python Interface for the
 
 ### Prerequisites
 
+* Install [**APRON**](http://apron.cri.ensmp.fr/library/)
+
 * Install [**Python 3.x**](http://www.python.org/)
 
 ### Installation
 
+* Create a virtual Python environment:
+
+    | Linux or Mac OS X                   |
+    | ----------------------------------- |
+    | `virtualenv --python=python3 <env>` |
+
+* Install apronpy in the virtual environment:
+
+    | Linux or Mac OS X                 |
+    | --------------------------------- |
+    | `./<env>/bin/pip install apronpy` | 
 
