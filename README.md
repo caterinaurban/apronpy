@@ -7,7 +7,7 @@ Python Interface for the
 
 ### Prerequisites
 
-* Install [**APRON**](http://apron.cri.ensmp.fr/library/)
+* Install [**APRON**](https://github.com/antoinemine/apron)
 
 * Install [**Python 3.x**](http://www.python.org/)
 

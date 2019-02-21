@@ -138,8 +138,8 @@ class TestPyMPFRScalar(unittest.TestCase):
         self.assertEqual(PyMPFRScalar(PyMPFR(-9)).sign(), -1)
         self.assertEqual(PyMPFRScalar(9).sign(), 1)
         self.assertEqual(PyMPFRScalar(PyMPFR(9)).sign(), 1)
-        self.assertEqual(PyMPFRScalar(0).sign(), -1)  # !
-        self.assertEqual(PyMPFRScalar(PyMPFR(0)).sign(), -1)  # !
+        self.assertEqual(PyMPFRScalar(0).sign(), 0)
+        self.assertEqual(PyMPFRScalar(PyMPFR(0)).sign(), 0)
         self.assertEqual(PyMPFRScalar.init_infty(-9).sign(), -1)
         self.assertEqual(PyMPFRScalar.init_infty(0).sign(), 1)  # !
         self.assertEqual(PyMPFRScalar.init_infty(9).sign(), 1)
