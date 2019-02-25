@@ -110,19 +110,19 @@ class PyScalar(metaclass=ABCMeta):
         assert isinstance(other, PyScalar)
         return self.__lt__(other) or self.__eq__(other)
 
-    def __eq__(self, other):
+    def __eq__(self, other: 'PyScalar'):
         assert isinstance(other, PyScalar)
         return libapron.ap_scalar_cmp(self, other) == 0
 
-    def __ne__(self, other):
+    def __ne__(self, other: 'PyScalar'):
         assert isinstance(other, PyScalar)
         return not self.__eq__(other)
 
-    def __ge__(self, other):
+    def __ge__(self, other: 'PyScalar'):
         assert isinstance(other, PyScalar)
         return self.__gt__(other) or self.__eq__(other)
 
-    def __gt__(self, other):
+    def __gt__(self, other: 'PyScalar'):
         assert isinstance(other, PyScalar)
         return libapron.ap_scalar_cmp(self, other) > 0
 

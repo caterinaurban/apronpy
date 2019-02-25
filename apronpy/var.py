@@ -22,11 +22,11 @@ class VarOperations(Structure):
     """
 
     _fields_ = [
-        ("compare", CFUNCTYPE(c_int, c_void_p, c_void_p)),
-        ("hash", CFUNCTYPE(c_int, c_void_p)),
-        ("copy", CFUNCTYPE(c_void_p, c_void_p)),
-        ("free", CFUNCTYPE(None, c_void_p)),
-        ("to_string", CFUNCTYPE(c_char_p, c_char_p))
+        ('compare', CFUNCTYPE(c_int, c_void_p, c_void_p)),
+        ('hash', CFUNCTYPE(c_int, c_void_p)),
+        ('copy', CFUNCTYPE(c_void_p, c_void_p)),
+        ('free', CFUNCTYPE(None, c_void_p)),
+        ('to_string', CFUNCTYPE(c_char_p, c_char_p))
     ]
 
 

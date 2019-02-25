@@ -7,7 +7,7 @@ setup(
     author_email='caterina.urban@gmail.com',
     description='Python Interface for the APRON Numerical Abstract Domain Library',
     long_description=open('README.md').read(),
-    long_description_content_type="text/markdown",
+    long_description_content_type='text/markdown',
     url='https://github.com/caterinaurban/apronpy',
     packages=find_packages(),
 )

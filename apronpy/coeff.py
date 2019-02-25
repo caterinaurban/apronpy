@@ -93,19 +93,19 @@ class PyCoeff(metaclass=ABCMeta):
         assert isinstance(other, PyCoeff)
         return self.__lt__(other) or self.__eq__(other)
 
-    def __eq__(self, other):
+    def __eq__(self, other: 'PyCoeff'):
         assert isinstance(other, PyCoeff)
         return libapron.ap_coeff_cmp(self, other) == 0
 
-    def __ne__(self, other):
+    def __ne__(self, other: 'PyCoeff'):
         assert isinstance(other, PyCoeff)
         return not self.__eq__(other)
 
-    def __ge__(self, other):
+    def __ge__(self, other: 'PyCoeff'):
         assert isinstance(other, PyCoeff)
         return self.__gt__(other) or self.__eq__(other)
 
-    def __gt__(self, other):
+    def __gt__(self, other: 'PyCoeff'):
         assert isinstance(other, PyCoeff)
         return libapron.ap_coeff_cmp(self, other) == 1
 
