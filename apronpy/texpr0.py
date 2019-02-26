@@ -5,12 +5,13 @@ APRON Tree Expressions (Level 0)
 :Author: Caterina Urban
 """
 from _ctypes import Structure, Union, POINTER
-from ctypes import c_uint, c_size_t
+from ctypes import c_uint
 from enum import IntEnum
 
 from apronpy.cdll import libapron
 from apronpy.coeff import Coeff
 from apronpy.dimension import Dim
+from apronpy.linexpr0 import Linexpr0
 from apronpy.mpfr import Rnd
 
 
@@ -61,13 +62,13 @@ class TexprOp(IntEnum):
 class TexprRtype(IntEnum):
     """
     typedef enum ap_texpr_rtype_t {
-      AP_RTYPE_REAL,     /* real (no rounding) */
-      AP_RTYPE_INT,      /* integer */
-      AP_RTYPE_SINGLE,   /* IEEE 754 32-bit single precision, e.g.: C's float */
-      AP_RTYPE_DOUBLE,   /* IEEE 754 64-bit double precision, e.g.: C's double */
-      AP_RTYPE_EXTENDED, /* non-standard 80-bit double extended, e.g.: Intel's long double */
-      AP_RTYPE_QUAD,     /* non-standard 128-bit quadruple precision, e.g.: Motorola's long double */
-      AP_RTYPE_SIZE      /* Not to be used ! */
+      AP_RTYPE_REAL,     // real (no rounding)
+      AP_RTYPE_INT,      // integer
+      AP_RTYPE_SINGLE,   // IEEE 754 32-bit single precision, e.g.: C's float
+      AP_RTYPE_DOUBLE,   // IEEE 754 64-bit double precision, e.g.: C's double
+      AP_RTYPE_EXTENDED, // non-standard 80-bit double extended, e.g.: Intel's long double
+      AP_RTYPE_QUAD,     // non-standard 128-bit quadruple precision, e.g.: Motorola's long double
+      AP_RTYPE_SIZE      // Not to be used !
     } ap_texpr_rtype_t;
     """
     AP_RTYPE_REAL = 0
@@ -162,3 +163,7 @@ Texpr0Node._fields_ = [
         ('exprA', POINTER(Texpr0)),
         ('exprB', POINTER(Texpr0))
     ]
+
+
+libapron.ap_texpr0_from_linexpr0.argtypes = [POINTER(Linexpr0)]
+libapron.ap_texpr0_from_linexpr0.restype = POINTER(Texpr0)

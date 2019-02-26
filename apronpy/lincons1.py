@@ -149,8 +149,6 @@ class PyLincons1:
         libapron.ap_coeff_set(libapron.ap_lincons1_coeffref(self, var._as_parameter_), coeff.coeff)
 
 
-libapron.ap_lincons1_make_unsat.argtypes = [PyEnvironment]
-libapron.ap_lincons1_make_unsat.restype = Lincons1
 libapron.ap_lincons1_clear.argtypes = [PyLincons1]
 libapron.ap_lincons1_coeffref.argtypes = [PyLincons1, c_char_p]
 libapron.ap_lincons1_coeffref.restype = POINTER(Coeff)

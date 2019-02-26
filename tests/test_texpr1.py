@@ -6,7 +6,7 @@ APRON Tree Expressions (Level 1) - Unit Tests
 """
 import unittest
 
-from apronpy.coeff import PyDoubleScalarCoeff, PyDoubleIntervalCoeff, PyMPQScalarCoeff
+from apronpy.coeff import PyDoubleScalarCoeff, PyMPQScalarCoeff
 from apronpy.environment import PyEnvironment
 from apronpy.linexpr1 import PyLinexpr1
 from apronpy.texpr1 import PyTexpr1

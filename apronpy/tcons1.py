@@ -1,29 +1,33 @@
 """
-APRON Tree Expressions (Level 1)
+APRON Tree Constraints (Level 1)
 ================================
 
 :Author: Caterina Urban
 """
-from _ctypes import Structure, POINTER
+from _ctypes import Structure, POINTER, byref
 from ctypes import c_char_p
 
 from apronpy.cdll import libapron
+from apronpy.coeff import PyDoubleScalarCoeff, Coeff
 from apronpy.environment import Environment, PyEnvironment
+from apronpy.lincons0 import ConsTyp
+from apronpy.lincons1 import PyLincons1
 from apronpy.linexpr1 import PyLinexpr1
-from apronpy.texpr0 import Texpr0, TexprDiscr, TexprOp
-from apronpy.var import PyVar
+from apronpy.scalar import c_uint
+from apronpy.tcons0 import Tcons0
+from apronpy.texpr0 import TexprOp, TexprDiscr
 
 
-class Texpr1(Structure):
+class Tcons1(Structure):
     """
-    typedef struct ap_texpr1_t {
-      ap_texpr0_t* texpr0;
+    typedef struct ap_tcons1_t {
+      ap_tcons0_t tcons0;
       ap_environment_t* env;
-    } ap_texpr1_t;
+    } ap_tcons1_t;
     """
 
     _fields_ = [
-        ('texpr0', POINTER(Texpr0)),
+        ('tcons0', Tcons0),
         ('env', POINTER(Environment))
     ]
 
@@ -67,39 +71,52 @@ class Texpr1(Structure):
                 else:
                     return '{} {}'.format(repr(TexprOp(op)), exprA)
 
-        return do(self.texpr0.contents, self.env.contents).replace('+ -', '- ')
+        constyp = ConsTyp(self.tcons0.constyp)
+        scalar = self.tcons0.scalar
+        result = do(self.tcons0.texpr0.contents, self.env.contents).replace('+ -', '- ')
+        if scalar:
+            return '{} {} {}'.format(result, repr(constyp), scalar.contents)
+        else:
+            return '{} {} 0'.format(result, repr(constyp))
 
 
-class PyTexpr1:
+class PyTcons1:
 
-    def __init__(self, linexpr: PyLinexpr1):
-        self.texpr1 = libapron.ap_texpr1_from_linexpr1(linexpr)
+    def __init__(self, lincons: PyLincons1):
+        self.tcons1 = Tcons1()
+        texpr = libapron.ap_texpr0_from_linexpr0(lincons.lincons1.lincons0.linexpr0)
+        self.tcons1.tcons0.texpr0 = texpr
+        self.tcons1.tcons0.constyp = c_uint(lincons.lincons1.lincons0.constyp)
+        scalar = lincons.lincons1.lincons0.scalar
+        if scalar:
+            self.tcons1.tcons0.scalar = libapron.ap_scalar_alloc_set(scalar)
+        lincons.lincons1.env.contents.count += 1
+        self.tcons1.env = lincons.lincons1.env
+
+    @classmethod
+    def unsat(cls, environment: PyEnvironment):
+        x = PyLinexpr1(environment)
+        x.set_cst(PyDoubleScalarCoeff(-1.0))
+        lincons = PyLincons1(ConsTyp.AP_CONS_SUPEQ, x)
+        return cls(lincons)
 
     def __del__(self):
-        libapron.ap_texpr1_free(self)
+        libapron.ap_tcons1_clear(self)
 
     @property
     def _as_parameter_(self):
-        return self.texpr1
+        return byref(self.tcons1)
 
     @staticmethod
     def from_param(argument):
-        assert isinstance(argument, PyTexpr1)
+        assert isinstance(argument, PyTcons1)
         return argument
 
     def __repr__(self):
-        return '{}'.format(self.texpr1.contents)
-
-    def substitute(self, var: PyVar, dst: 'PyTexpr1'):
-        texpr = type(self)(PyLinexpr1(PyEnvironment()))
-        texpr.texpr1 = libapron.ap_texpr1_substitute(self, var._as_parameter_, dst)
-        return texpr
+        return '{}'.format(self.tcons1)
 
 
-libapron.ap_texpr1_copy.argtypes = [PyTexpr1]
-libapron.ap_texpr1_copy.restype = Texpr1
-libapron.ap_texpr1_free.argtypes = [PyTexpr1]
-libapron.ap_texpr1_from_linexpr1.argtypes = [PyLinexpr1]
-libapron.ap_texpr1_from_linexpr1.restype = POINTER(Texpr1)
-libapron.ap_texpr1_substitute.argtypes = [PyTexpr1, c_char_p, PyTexpr1]
-libapron.ap_texpr1_substitute.restype = POINTER(Texpr1)
+libapron.ap_tcons1_clear.argtypes = [PyTcons1]
+libapron.ap_lincons1_coeffref.argtypes = [PyLincons1, c_char_p]
+libapron.ap_lincons1_coeffref.restype = POINTER(Coeff)
+libapron.ap_lincons1_get_coeff.argtypes = [POINTER(Coeff), PyLincons1, c_char_p]
