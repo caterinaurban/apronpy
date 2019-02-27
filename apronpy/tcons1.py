@@ -55,21 +55,21 @@ class Tcons1(Structure):
                 return '{}'.format(env.var_of_dim[texpr0.val.dim.value].decode('utf-8'))
             else:  # texpr0.discr == TexprDiscr.AP_TEXPR_NODE
                 prec = precendence(texpr0)
-                precA = precendence(texpr0.val.node.contents.exprA.contents)
-                if precA < prec:
-                    exprA = '(' + do(texpr0.val.node.contents.exprA.contents, env) + ')'
+                prec_a = precendence(texpr0.val.node.contents.exprA.contents)
+                if prec_a < prec:
+                    expr_a = '(' + do(texpr0.val.node.contents.exprA.contents, env) + ')'
                 else:
-                    exprA = do(texpr0.val.node.contents.exprA.contents, env)
+                    expr_a = do(texpr0.val.node.contents.exprA.contents, env)
                 op = texpr0.val.node.contents.op
                 if texpr0.val.node.contents.exprB:  # binary operation
-                    precB = precendence(texpr0.val.node.contents.exprB.contents)
-                    if precB <= prec:
-                        exprB = '(' + do(texpr0.val.node.contents.exprB.contents, env) + ')'
+                    prec_b = precendence(texpr0.val.node.contents.exprB.contents)
+                    if prec_b <= prec:
+                        expr_b = '(' + do(texpr0.val.node.contents.exprB.contents, env) + ')'
                     else:
-                        exprB = do(texpr0.val.node.contents.exprB.contents, env)
-                    return '{} {} {}'.format(exprA, repr(TexprOp(op)), exprB)
+                        expr_b = do(texpr0.val.node.contents.exprB.contents, env)
+                    return '{} {} {}'.format(expr_a, repr(TexprOp(op)), expr_b)
                 else:
-                    return '{} {}'.format(repr(TexprOp(op)), exprA)
+                    return '{} {}'.format(repr(TexprOp(op)), expr_a)
 
         constyp = ConsTyp(self.tcons0.constyp)
         scalar = self.tcons0.scalar
