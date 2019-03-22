@@ -27,4 +27,3 @@ libapron = CDLL(util.find_library('libapron.so'))
 
 libgmp = CDLL(util.find_library('gmp'))
 libmpfr = CDLL(util.find_library('mpfr'))
-

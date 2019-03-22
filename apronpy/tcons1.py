@@ -5,16 +5,17 @@ APRON Tree Constraints (Level 1)
 :Author: Caterina Urban
 """
 from _ctypes import Structure, POINTER, byref
-from ctypes import c_char_p
+from ctypes import c_size_t
+from typing import List
 
 from apronpy.cdll import libapron
-from apronpy.coeff import PyDoubleScalarCoeff, Coeff
+from apronpy.coeff import PyDoubleScalarCoeff
 from apronpy.environment import Environment, PyEnvironment
 from apronpy.lincons0 import ConsTyp
 from apronpy.lincons1 import PyLincons1
 from apronpy.linexpr1 import PyLinexpr1
 from apronpy.scalar import c_uint
-from apronpy.tcons0 import Tcons0
+from apronpy.tcons0 import Tcons0, Tcons0Array
 from apronpy.texpr0 import TexprOp, TexprDiscr
 
 
@@ -80,6 +81,20 @@ class Tcons1(Structure):
             return '{} {} 0'.format(result, repr(constyp))
 
 
+class TCons1Array(Structure):
+    """
+    typedef struct ap_tcons1_array_t {
+      ap_tcons0_array_t tcons0_array;
+      ap_environment_t* env;
+    } ap_tcons1_array_t;
+    """
+
+    _fields_ = [
+        ('tcons0_array', Tcons0Array),
+        ('env', POINTER(Environment))
+    ]
+
+
 class PyTcons1:
 
     def __init__(self, lincons: PyLincons1):
@@ -117,6 +132,46 @@ class PyTcons1:
 
 
 libapron.ap_tcons1_clear.argtypes = [PyTcons1]
-libapron.ap_lincons1_coeffref.argtypes = [PyLincons1, c_char_p]
-libapron.ap_lincons1_coeffref.restype = POINTER(Coeff)
-libapron.ap_lincons1_get_coeff.argtypes = [POINTER(Coeff), PyLincons1, c_char_p]
+
+
+class PyTcons1Array:
+
+    def __init__(self, tcons1s: List[Tcons1] = None, environment: PyEnvironment = None):
+        if tcons1s:
+            size = len(tcons1s)
+            tcons1s[0].tcons1.env.contents.count += 1
+            self.tcons1array = libapron.ap_tcons1_array_make(tcons1s[0].tcons1.env, size)
+            for i in range(size):
+                tcons1i_copy = Tcons1()
+                tcons1i_copy.tcons0 = Tcons0()
+                texpr0_copy = libapron.ap_texpr0_copy(tcons1s[i].tcons1.tcons0.texpr0)
+                tcons1i_copy.tcons0.texpr0 = texpr0_copy
+                tcons1i_copy.tcons0.constyp = c_uint(tcons1s[i].tcons1.tcons0.constyp)
+                scalar = tcons1s[i].tcons1.tcons0.scalar
+                if scalar:
+                    tcons1i_copy.tcons0.scalar = libapron.ap_scalar_alloc_set(scalar)
+                else:
+                    tcons1i_copy.tcons0.scalar = None
+                tcons1s[i].tcons1.env.contents.count += 1
+                tcons1i_copy.env = tcons1s[i].tcons1.env
+                libapron.ap_tcons1_array_set(self, i, byref(tcons1i_copy))
+        else:
+            self.tcons1array = libapron.ap_tcons1_array_make(environment, 0)
+
+    def __del__(self):
+        libapron.ap_tcons1_array_clear(self)
+
+    @property
+    def _as_parameter_(self):
+        return byref(self.tcons1array)
+
+    @staticmethod
+    def from_param(argument):
+        assert isinstance(argument, PyTcons1Array)
+        return argument
+
+
+libapron.ap_tcons1_array_make.argtypes = [POINTER(Environment), c_size_t]
+libapron.ap_tcons1_array_make.restype = TCons1Array
+libapron.ap_tcons1_array_clear.argtypes = [PyTcons1Array]
+libapron.ap_tcons1_array_set.argtypes = [PyTcons1Array, c_size_t, PyTcons1]
