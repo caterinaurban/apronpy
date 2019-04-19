@@ -5,6 +5,7 @@ APRON Linear Expressions (Level 1)
 :Author: Caterina Urban
 """
 from _ctypes import Structure, POINTER, byref
+from copy import deepcopy
 from ctypes import c_uint, c_size_t, c_char_p
 
 from apronpy.cdll import libapron
@@ -29,6 +30,13 @@ class Linexpr1(Structure):
         ('env', POINTER(Environment))
     ]
 
+    def __deepcopy__(self, memodict=None):
+        if memodict is None:
+            memodict = {}
+        result = libapron.ap_linexpr1_copy(byref(self))
+        memodict[id(self)] = result
+        return result
+
     def __repr__(self):
         linexpr0 = self.linexpr0.contents
         env = self.env.contents
@@ -39,7 +47,8 @@ class Linexpr1(Structure):
                 for i in range(linexpr0.size)
             )
             result += ' + {}'.format(linexpr0.cst) if result else '{}'.format(linexpr0.cst)
-        else:   # self.discr == LinexprDiscr.AP_LINEXPR_SPARSE:
+        else:
+            assert linexpr0.discr == LinexprDiscr.AP_LINEXPR_SPARSE
             terms = list()
             for i in range(linexpr0.size):
                 coeff = linexpr0.p.linterm[i].coeff
@@ -53,8 +62,20 @@ class Linexpr1(Structure):
 
 class PyLinexpr1:
 
-    def __init__(self, environment: PyEnvironment, discr=LinexprDiscr.AP_LINEXPR_SPARSE):
-        self.linexpr1 = libapron.ap_linexpr1_make(environment, discr, len(environment))
+    def __init__(self, linexpr1_or_environment, discr=LinexprDiscr.AP_LINEXPR_SPARSE):
+        if isinstance(linexpr1_or_environment, Linexpr1):
+            self.linexpr1 = linexpr1_or_environment
+        else:
+            assert isinstance(linexpr1_or_environment, PyEnvironment)
+            size = len(linexpr1_or_environment)
+            self.linexpr1 = libapron.ap_linexpr1_make(linexpr1_or_environment, discr, size)
+
+    def __deepcopy__(self, memodict=None):
+        if memodict is None:
+            memodict = {}
+        result = PyLinexpr1(deepcopy(self.linexpr1))
+        memodict[id(self)] = result
+        return result
 
     def __del__(self):
         libapron.ap_linexpr1_clear(self)
@@ -90,22 +111,24 @@ class PyLinexpr1:
         return bool(libapron.ap_linexpr0_is_quasilinear(linexpr0))
 
     def get_cst(self):
-        cst = self.linexpr1.linexpr0.contents.cst
+        cst = deepcopy(self.linexpr1.linexpr0.contents.cst)
         if cst.discr == CoeffDiscr.AP_COEFF_INTERVAL:
             if cst.val.interval.contents.inf.contents.discr == ScalarDiscr.AP_SCALAR_MPQ:
-                result = PyMPQIntervalCoeff()
+                result = PyMPQIntervalCoeff(cst)
             elif cst.val.interval.contents.inf.contents.discr == ScalarDiscr.AP_SCALAR_MPFR:
-                result = PyMPFRIntervalCoeff(0, 0)
-            else:  # cst.val.interval.contents.inf.contents.discr == ScalarDiscr.AP_SCALAR_DOUBLE
-                result = PyDoubleIntervalCoeff()
-        else:  # CoeffDiscr.AP_COEFF_SCALAR
+                result = PyMPFRIntervalCoeff(cst)
+            else:
+                assert cst.val.interval.contents.inf.contents.discr == ScalarDiscr.AP_SCALAR_DOUBLE
+                result = PyDoubleIntervalCoeff(cst)
+        else:
+            assert cst.discr == CoeffDiscr.AP_COEFF_SCALAR
             if cst.val.scalar.contents.discr == ScalarDiscr.AP_SCALAR_MPQ:
-                result = PyMPQScalarCoeff()
+                result = PyMPQScalarCoeff(cst)
             elif cst.val.scalar.contents.discr == ScalarDiscr.AP_SCALAR_MPFR:
-                result = PyMPFRScalarCoeff(0)
-            else:  # cst.val.scalar.contents.discr == ScalarDiscr.AP_SCALAR_DOUBLE
-                result = PyDoubleScalarCoeff()
-        libapron.ap_coeff_set(result.coeff, self.linexpr1.linexpr0.contents.cst)
+                result = PyMPFRScalarCoeff(cst)
+            else:
+                assert cst.val.scalar.contents.discr == ScalarDiscr.AP_SCALAR_DOUBLE
+                result = PyDoubleScalarCoeff(cst)
         return result
 
     def set_cst(self, cst: PyCoeff):
@@ -137,7 +160,7 @@ class PyLinexpr1:
 
 libapron.ap_linexpr1_make.argtypes = [PyEnvironment, c_uint, c_size_t]
 libapron.ap_linexpr1_make.restype = Linexpr1
-libapron.ap_linexpr1_copy.argtypes = [PyLinexpr1]
+libapron.ap_linexpr1_copy.argtypes = [POINTER(Linexpr1)]
 libapron.ap_linexpr1_copy.restype = Linexpr1
 libapron.ap_linexpr1_clear.argtypes = [PyLinexpr1]
 libapron.ap_linexpr1_coeffref.argtypes = [PyLinexpr1, c_char_p]

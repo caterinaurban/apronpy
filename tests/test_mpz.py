@@ -5,6 +5,7 @@ GMP Multi-Precision Integers - Unit Tests
 :Author: Caterina Urban
 """
 import unittest
+from copy import deepcopy
 
 from apronpy.mpz import PyMPZ
 
@@ -15,6 +16,13 @@ class TestPyMPZ(unittest.TestCase):
         self.assertEqual(str(PyMPZ()), '0')
         self.assertEqual(str(PyMPZ(0.0)), '0')
         self.assertEqual(str(PyMPZ(9)), '9')
+
+    def test_deepcopy(self):
+        z0 = PyMPZ(3)
+        z1 = deepcopy(z0)
+        z2 = z0
+        self.assertNotEqual(id(z0), id(z1))
+        self.assertEqual(id(z0), id(z2))
 
     def test_arithmetic(self):
         self.assertEqual(PyMPZ(9) + PyMPZ(3), PyMPZ(9 + 3))

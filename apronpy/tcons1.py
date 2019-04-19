@@ -6,7 +6,7 @@ APRON Tree Constraints (Level 1)
 """
 from _ctypes import Structure, POINTER, byref
 from ctypes import c_size_t
-from typing import List
+from typing import List, Union
 
 from apronpy.cdll import libapron
 from apronpy.coeff import PyDoubleScalarCoeff
@@ -14,9 +14,10 @@ from apronpy.environment import Environment, PyEnvironment
 from apronpy.lincons0 import ConsTyp
 from apronpy.lincons1 import PyLincons1
 from apronpy.linexpr1 import PyLinexpr1
-from apronpy.scalar import c_uint
+from apronpy.scalar import c_uint, PyScalar
 from apronpy.tcons0 import Tcons0, Tcons0Array
 from apronpy.texpr0 import TexprOp, TexprDiscr
+from apronpy.texpr1 import PyTexpr1
 
 
 class Tcons1(Structure):
@@ -97,16 +98,31 @@ class TCons1Array(Structure):
 
 class PyTcons1:
 
-    def __init__(self, lincons: PyLincons1):
-        self.tcons1 = Tcons1()
-        texpr = libapron.ap_texpr0_from_linexpr0(lincons.lincons1.lincons0.linexpr0)
-        self.tcons1.tcons0.texpr0 = texpr
-        self.tcons1.tcons0.constyp = c_uint(lincons.lincons1.lincons0.constyp)
-        scalar = lincons.lincons1.lincons0.scalar
-        if scalar:
-            self.tcons1.tcons0.scalar = libapron.ap_scalar_alloc_set(scalar)
-        lincons.lincons1.env.contents.count += 1
-        self.tcons1.env = lincons.lincons1.env
+    def __init__(self, cons: Union[PyLincons1, Tcons1]):
+        if isinstance(cons, PyLincons1):
+            self.tcons1 = Tcons1()
+            texpr = libapron.ap_texpr0_from_linexpr0(cons.lincons1.lincons0.linexpr0)
+            self.tcons1.tcons0.texpr0 = texpr
+            self.tcons1.tcons0.constyp = c_uint(cons.lincons1.lincons0.constyp)
+            scalar = cons.lincons1.lincons0.scalar
+            if scalar:
+                self.tcons1.tcons0.scalar = libapron.ap_scalar_alloc_set(scalar)
+            cons.lincons1.env.contents.count += 1
+            self.tcons1.env = cons.lincons1.env
+        else:
+            self.tcons1 = cons
+
+    @classmethod
+    def make(cls, texpr: PyTexpr1, typ: ConsTyp, cst: PyScalar = None):
+        tcons1 = Tcons1()
+        tcons1.tcons0 = Tcons0()
+        tcons1.tcons0.texpr0 = libapron.ap_texpr0_copy(texpr.texpr1.texpr0)
+        tcons1.tcons0.constyp = c_uint(typ)
+        if cst:
+            tcons1.tcons0.scalar = libapron.ap_scalar_alloc_set(cst)
+        else:
+            tcons1.tcons0.scalar = None
+        return cls(tcons1)
 
     @classmethod
     def unsat(cls, environment: PyEnvironment):

@@ -5,6 +5,7 @@ APRON Intervals on Scalars - Unit Tests
 :Author: Caterina Urban
 """
 import unittest
+from copy import deepcopy
 from ctypes import c_double
 
 from apronpy.interval import PyDoubleInterval, PyMPQInterval, PyMPFRInterval
@@ -32,6 +33,13 @@ class TestPyDoubleInterval(unittest.TestCase):
         )
         self.assertEqual(str(PyDoubleInterval.top()), '[-inf,inf]')
         self.assertEqual(str(PyDoubleInterval.bottom()), '[1.0,-1.0]')
+
+    def test_deepcopy(self):
+        i0 = PyDoubleInterval(0, 0)
+        i1 = deepcopy(i0)
+        i2 = i0
+        self.assertNotEqual(id(i0), id(i1))
+        self.assertEqual(id(i0), id(i2))
 
     def test_is_bottom(self):
         self.assertFalse(PyDoubleInterval().is_bottom())
@@ -107,6 +115,13 @@ class TestPyMPQInterval(unittest.TestCase):
         self.assertEqual(str(PyMPQInterval.top()), '[-1/0,1/0]')
         self.assertEqual(str(PyMPQInterval.bottom()), '[1,-1]')
 
+    def test_deepcopy(self):
+        i0 = PyMPQInterval(0, 0)
+        i1 = deepcopy(i0)
+        i2 = i0
+        self.assertNotEqual(id(i0), id(i1))
+        self.assertEqual(id(i0), id(i2))
+
     def test_is_bottom(self):
         self.assertFalse(PyMPQInterval().is_bottom())
         self.assertFalse(PyMPQInterval(0, 0).is_bottom())
@@ -173,6 +188,13 @@ class TestPyMPFRInterval(unittest.TestCase):
         self.assertEqual(str(PyMPFRInterval(PyMPFRScalar(-0.5), PyMPFRScalar(0.5))), '[-0.5,0.5]')
         self.assertEqual(str(PyMPFRInterval.top()), '[-inf,inf]')
         self.assertEqual(str(PyMPFRInterval.bottom()), '[1.0,-1.0]')
+
+    def test_deepcopy(self):
+        i0 = PyMPFRInterval(0, 0)
+        i1 = deepcopy(i0)
+        i2 = i0
+        self.assertNotEqual(id(i0), id(i1))
+        self.assertEqual(id(i0), id(i2))
 
     def test_is_bottom(self):
         self.assertFalse(PyMPFRInterval(0, 0).is_bottom())

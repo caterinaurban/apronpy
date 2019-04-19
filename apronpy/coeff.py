@@ -4,8 +4,9 @@ APRON Coefficients
 
 :Author: Caterina Urban
 """
-from _ctypes import Union, Structure, POINTER
+from _ctypes import Union, Structure, POINTER, byref
 from abc import ABCMeta
+from copy import deepcopy
 from ctypes import c_uint
 from enum import IntEnum
 
@@ -54,6 +55,14 @@ class Coeff(Structure):
         ('val', Val)
     ]
 
+    def __deepcopy__(self, memodict=None):
+        if memodict is None:
+            memodict = {}
+        result = libapron.ap_coeff_alloc(self.discr)
+        libapron.ap_coeff_set(result, byref(self))
+        memodict[id(self)] = result.contents
+        return result.contents
+
     def __repr__(self):
         if self.discr == CoeffDiscr.AP_COEFF_INTERVAL:
             return '{}'.format(self.val.interval.contents)
@@ -65,10 +74,20 @@ class PyCoeff(metaclass=ABCMeta):
 
     def __init__(self, value, discr: CoeffDiscr = CoeffDiscr.AP_COEFF_SCALAR):
         self.coeff = libapron.ap_coeff_alloc(discr)
-        if discr == CoeffDiscr.AP_COEFF_INTERVAL:
+        if isinstance(value, Coeff):
+            self.coeff = byref(value)
+        elif discr == CoeffDiscr.AP_COEFF_INTERVAL:
             libapron.ap_coeff_set_interval(self, value)
-        else:  # discr == CoeffDiscr.AP_COEFF_SCALAR
+        else:
+            assert discr == CoeffDiscr.AP_COEFF_SCALAR
             libapron.ap_coeff_set_scalar(self, value)
+
+    def __deepcopy__(self, memodict=None):
+        if memodict is None:
+            memodict = {}
+        result = type(self)(deepcopy(self.coeff.contents))
+        memodict[id(self)] = result
+        return result
 
     def __del__(self):
         libapron.ap_coeff_free(self)
@@ -136,7 +155,7 @@ class PyScalarCoeff(PyCoeff, metaclass=ABCMeta):
 class PyDoubleScalarCoeff(PyScalarCoeff):
 
     def __init__(self, value=0.0):
-        if isinstance(value, PyDoubleScalar):
+        if isinstance(value, (Coeff, PyDoubleScalar)):
             super().__init__(value)
         else:
             super().__init__(PyDoubleScalar(value))
@@ -144,17 +163,17 @@ class PyDoubleScalarCoeff(PyScalarCoeff):
 
 class PyMPQScalarCoeff(PyScalarCoeff):
 
-    def __init__(self, numerator=0, denumerator=1):
-        if isinstance(numerator, PyMPQScalar):
-            super().__init__(numerator)
+    def __init__(self, value_or_numerator=0, denumerator=1):
+        if isinstance(value_or_numerator, (Coeff, PyMPQScalar)):
+            super().__init__(value_or_numerator)
         else:
-            super().__init__(PyMPQScalar(numerator, denumerator))
+            super().__init__(PyMPQScalar(value_or_numerator, denumerator))
 
 
 class PyMPFRScalarCoeff(PyScalarCoeff):
 
     def __init__(self, value, rounding: Rnd = Rnd.MPFR_RNDN):
-        if isinstance(value, PyMPFRScalar):
+        if isinstance(value, (Coeff, PyMPFRScalar)):
             super().__init__(value)
         else:
             super().__init__(PyMPFRScalar(value, rounding))
@@ -168,26 +187,26 @@ class PyIntervalCoeff(PyCoeff, metaclass=ABCMeta):
 
 class PyDoubleIntervalCoeff(PyIntervalCoeff):
 
-    def __init__(self, inf=0.0, sup=0.0):
-        if isinstance(inf, PyDoubleInterval):
-            super().__init__(inf)
+    def __init__(self, value_or_inf=0.0, sup=0.0):
+        if isinstance(value_or_inf, (Coeff, PyDoubleInterval)):
+            super().__init__(value_or_inf)
         else:
-            super().__init__(PyDoubleInterval(inf, sup))
+            super().__init__(PyDoubleInterval(value_or_inf, sup))
 
 
 class PyMPQIntervalCoeff(PyIntervalCoeff):
 
-    def __init__(self, inf_num=0, sup_num=0, inf_den=1, sup_den=1):
-        if isinstance(inf_num, PyMPQInterval):
-            super().__init__(inf_num)
+    def __init__(self, value_or_inf_num=0, sup_num=0, inf_den=1, sup_den=1):
+        if isinstance(value_or_inf_num, (Coeff, PyMPQInterval)):
+            super().__init__(value_or_inf_num)
         else:
-            super().__init__(PyMPQInterval(inf_num, sup_num, inf_den, sup_den))
+            super().__init__(PyMPQInterval(value_or_inf_num, sup_num, inf_den, sup_den))
 
 
 class PyMPFRIntervalCoeff(PyIntervalCoeff):
 
-    def __init__(self, inf, sup, rounding: Rnd = Rnd.MPFR_RNDN):
-        if isinstance(inf, PyMPFRInterval):
-            super().__init__(inf)
+    def __init__(self, value_or_inf, sup=None, rounding: Rnd = Rnd.MPFR_RNDN):
+        if isinstance(value_or_inf, (Coeff, PyMPFRInterval)):
+            super().__init__(value_or_inf)
         else:
-            super().__init__(PyMPFRInterval(inf, sup, rounding))
+            super().__init__(PyMPFRInterval(value_or_inf, sup, rounding))

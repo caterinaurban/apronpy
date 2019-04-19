@@ -6,16 +6,17 @@ GMP Multi-Precision Rationals
 """
 from _ctypes import Structure, byref, POINTER
 from ctypes import c_int, c_char_p, c_long, c_ulong
+from typing import Union
 
 from apronpy.cdll import libgmp
 from apronpy.mpz import MPZ
-
 
 MPQ_canonicalize = libgmp.__gmpq_canonicalize
 # initialization functions
 MPQ_init = libgmp.__gmpq_init
 MPQ_clear = libgmp.__gmpq_clear
 # assignment functions
+MPQ_set = libgmp.__gmpq_set
 MPQ_set_si = libgmp.__gmpq_set_si
 # conversion functions
 MPQ_get_str = libgmp.__gmpq_get_str
@@ -48,11 +49,22 @@ class MPQ(Structure):
 
 class PyMPQ:
 
-    def __init__(self, numerator: int = 0, denominator: int = 1):
+    def __init__(self, value_or_numerator: Union[MPQ, int] = 0, denominator: int = 1):
         self.mpq = MPQ()
         MPQ_init(self)
-        MPQ_set_si(self, c_long(numerator), c_ulong(denominator))
-        MPQ_canonicalize(self)
+        if isinstance(value_or_numerator, MPQ):
+            MPQ_set(self, value_or_numerator)
+        else:
+            assert isinstance(value_or_numerator, int)
+            MPQ_set_si(self, c_long(value_or_numerator), c_ulong(denominator))
+            MPQ_canonicalize(self)
+
+    def __deepcopy__(self, memodict=None):
+        if memodict is None:
+            memodict = {}
+        result = PyMPQ(self.mpq)
+        memodict[id(self)] = result
+        return result
 
     def __del__(self):
         MPQ_clear(self)
@@ -127,6 +139,7 @@ MPQ_canonicalize.argtypes = [PyMPQ]
 MPQ_init.argtypes = [PyMPQ]
 MPQ_clear.argtypes = [PyMPQ]
 # assignment functions
+MPQ_set.argtypes = [PyMPQ, POINTER(MPQ)]
 MPQ_set_si.argtypes = [PyMPQ, c_long, c_ulong]
 # conversion functions
 MPQ_get_str.argtypes = [c_char_p, c_int, POINTER(MPQ)]

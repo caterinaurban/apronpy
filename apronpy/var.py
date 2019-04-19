@@ -35,6 +35,15 @@ class PyVar:
     def __init__(self, name: str):
         self.var = name
 
+    def __deepcopy__(self, memodict=None):
+        if memodict is None:
+            memodict = {}
+        result = PyVar('')
+        operations = VarOperations.in_dll(libapron, 'ap_var_operations_default')
+        operations.compare(result, self)
+        memodict[id(self)] = result
+        return result
+
     @property
     def _as_parameter_(self):
         return self.var.encode('utf-8')
@@ -49,7 +58,7 @@ class PyVar:
 
     def __lt__(self, other: 'PyVar'):
         assert isinstance(other, PyVar)
-        operations = VarOperations.in_dll(libapron, "ap_var_operations_default")
+        operations = VarOperations.in_dll(libapron, 'ap_var_operations_default')
         return operations.compare(self, other) < 0
 
     def __le__(self, other: 'PyVar'):
@@ -58,7 +67,7 @@ class PyVar:
 
     def __eq__(self, other):
         assert isinstance(other, PyVar)
-        operations = VarOperations.in_dll(libapron, "ap_var_operations_default")
+        operations = VarOperations.in_dll(libapron, 'ap_var_operations_default')
         return operations.compare(self, other) == 0
 
     def __ne__(self, other):
@@ -71,5 +80,5 @@ class PyVar:
 
     def __gt__(self, other):
         assert isinstance(other, PyVar)
-        operations = VarOperations.in_dll(libapron, "ap_var_operations_default")
+        operations = VarOperations.in_dll(libapron, 'ap_var_operations_default')
         return operations.compare(self, other) > 0

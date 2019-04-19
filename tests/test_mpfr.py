@@ -5,6 +5,7 @@ MPFR Multiprecision Floating-Point Numbers - Unit Tests
 :Author: Caterina Urban
 """
 import unittest
+from copy import deepcopy
 
 from apronpy.mpfr import PyMPFR
 
@@ -14,6 +15,13 @@ class TestPyMPFR(unittest.TestCase):
     def test_initialization_assignment_conversion(self):
         self.assertEqual(str(PyMPFR(9)), '9.0')
         self.assertEqual(str(PyMPFR(-9)), '-9.0')
+
+    def test_deepcopy(self):
+        f0 = PyMPFR(9)
+        f1 = deepcopy(f0)
+        f2 = f0
+        self.assertNotEqual(id(f0), id(f1))
+        self.assertEqual(id(f0), id(f2))
 
     def test_arithmetic(self):
         self.assertEqual(PyMPFR(9) + PyMPFR(3), PyMPFR(9 + 3))

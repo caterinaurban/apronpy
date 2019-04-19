@@ -5,6 +5,7 @@ APRON Scalar Numbers - Unit Tests
 :Author: Caterina Urban
 """
 import unittest
+from copy import deepcopy
 from ctypes import c_double
 
 from apronpy.mpfr import PyMPFR
@@ -35,6 +36,13 @@ class TestPyDoubleScalar(unittest.TestCase):
         self.assertEqual(PyDoubleScalar.init_infty(-9).infty(), -1)
         self.assertEqual(PyDoubleScalar.init_infty(0).infty(), 0)
         self.assertEqual(PyDoubleScalar.init_infty(9).infty(), 1)
+
+    def test_deepcopy(self):
+        s0 = PyDoubleScalar(9)
+        s1 = deepcopy(s0)
+        s2 = s0
+        self.assertNotEqual(id(s0), id(s1))
+        self.assertEqual(id(s0), id(s2))
 
     def test_cmp(self):
         self.assertTrue(PyDoubleScalar(0.5) < PyDoubleScalar(9))
@@ -88,6 +96,13 @@ class TestPyMPQScalar(unittest.TestCase):
         self.assertEqual(PyMPQScalar.init_infty(0).infty(), 0)
         self.assertEqual(PyMPQScalar.init_infty(9).infty(), 1)
 
+    def test_deepcopy(self):
+        s0 = PyMPQScalar(9)
+        s1 = deepcopy(s0)
+        s2 = s0
+        self.assertNotEqual(id(s0), id(s1))
+        self.assertEqual(id(s0), id(s2))
+
     def test_cmp(self):
         self.assertTrue(PyMPQScalar(1, 2) < PyMPQScalar(9))
         self.assertTrue(PyMPQScalar(9) == PyMPQScalar(9))
@@ -127,6 +142,13 @@ class TestPyMPFRScalar(unittest.TestCase):
         self.assertEqual(PyMPFRScalar.init_infty(-9).infty(), -1)
         self.assertEqual(PyMPFRScalar.init_infty(0).infty(), 1)  # !
         self.assertEqual(PyMPFRScalar.init_infty(9).infty(), 1)
+
+    def test_deepcopy(self):
+        s0 = PyMPFRScalar(9)
+        s1 = deepcopy(s0)
+        s2 = s0
+        self.assertNotEqual(id(s0), id(s1))
+        self.assertEqual(id(s0), id(s2))
 
     def test_cmp(self):
         self.assertTrue(PyMPFRScalar(0.5) < PyMPFRScalar(9))

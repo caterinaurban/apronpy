@@ -5,6 +5,7 @@ APRON Linear Constraints (Level 1)
 :Author: Caterina Urban
 """
 from _ctypes import Structure, POINTER, byref
+from copy import deepcopy
 from ctypes import c_char_p, c_size_t
 from typing import List
 
@@ -111,13 +112,11 @@ class PyLincons1:
 
     def __init__(self, typ: ConsTyp, linexpr: PyLinexpr1, scalar: PyScalar = None):
         self.lincons1 = Lincons1()
-        linexpr_copy = libapron.ap_linexpr1_copy(linexpr)
+        linexpr_copy = deepcopy(linexpr.linexpr1)
         self.lincons1.lincons0.linexpr0 = linexpr_copy.linexpr0
         self.lincons1.lincons0.constyp = c_uint(typ)
         if scalar:
-            scalar_copy = libapron.ap_scalar_alloc()
-            libapron.ap_scalar_set(scalar_copy, scalar)
-            self.lincons1.lincons0.scalar = scalar_copy
+            self.lincons1.lincons0.scalar = deepcopy(scalar)
         self.lincons1.env = linexpr_copy.env
 
     @classmethod

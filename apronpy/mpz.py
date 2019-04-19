@@ -6,11 +6,13 @@ GMP Multi-Precision Integers
 """
 from _ctypes import Structure, POINTER, byref
 from ctypes import c_int, c_ulonglong, c_double, c_char_p
+from typing import Union
 
 from apronpy.cdll import libgmp
 
 # initialization and assignment functions
 MPZ_clear = libgmp.__gmpz_clear
+MPZ_init_set = libgmp.__gmpz_init_set
 MPZ_init_set_d = libgmp.__gmpz_init_set_d
 # conversion functions
 MPZ_get_str = libgmp.__gmpz_get_str
@@ -40,14 +42,25 @@ class MPZ(Structure):
     ]
 
     def __repr__(self):
-        return MPZ_get_str(None, 10, self).decode("utf-8")
+        return MPZ_get_str(None, 10, self).decode('utf-8')
 
 
 class PyMPZ:
 
-    def __init__(self, value: float = 0):
+    def __init__(self, value: Union[MPZ, int, float] = 0):
         self.mpz = MPZ()
-        MPZ_init_set_d(self, c_double(value))
+        if isinstance(value, MPZ):
+            MPZ_init_set(self, value)
+        else:
+            assert isinstance(value, (int, float))
+            MPZ_init_set_d(self, c_double(value))
+
+    def __deepcopy__(self, memodict=None):
+        if memodict is None:
+            memodict = {}
+        result = PyMPZ(self.mpz)
+        memodict[id(self)] = result
+        return result
 
     def __del__(self):
         MPZ_clear(self)
@@ -62,7 +75,7 @@ class PyMPZ:
         return argument
 
     def __repr__(self):
-        return MPZ_get_str(None, 10, self.mpz).decode("utf-8")
+        return MPZ_get_str(None, 10, self.mpz).decode('utf-8')
 
     def __lt__(self, other: 'PyMPZ'):
         assert isinstance(other, PyMPZ)
@@ -119,6 +132,7 @@ class PyMPZ:
 
 # initialization and assignment functions
 MPZ_clear.argtypes = [PyMPZ]
+MPZ_init_set.argtypes = [PyMPZ, POINTER(MPZ)]
 MPZ_init_set_d.argtypes = [PyMPZ, c_double]
 # conversion functions
 MPZ_get_str.argtypes = [c_char_p, c_int, POINTER(MPZ)]

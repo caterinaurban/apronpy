@@ -5,6 +5,7 @@ APRON Linear Expressions (Level 1) - Unit Tests
 :Author: Caterina Urban
 """
 import unittest
+from copy import deepcopy
 
 from apronpy.coeff import PyDoubleScalarCoeff, PyDoubleIntervalCoeff
 from apronpy.environment import PyEnvironment
@@ -18,6 +19,14 @@ class TestPyLinexpr1(unittest.TestCase):
         e = PyEnvironment([PyVar('x0'), PyVar('y')], [PyVar('z')])
         self.assertEqual(str(PyLinexpr1(e)), '0.0')
         self.assertEqual(str(PyLinexpr1(e, 0)), '0.0·x0 + 0.0·y + 0.0·z + 0.0')
+
+    def test_deepcopy(self):
+        e = PyEnvironment([PyVar('x0'), PyVar('y')], [PyVar('z')])
+        x0 = PyLinexpr1(e)
+        x1 = deepcopy(x0)
+        x2 = x0
+        self.assertNotEqual(id(x0), id(x1))
+        self.assertEqual(id(x0), id(x2))
 
     def test_is_integer(self):
         e = PyEnvironment([PyVar('x0'), PyVar('y')], [PyVar('z')])

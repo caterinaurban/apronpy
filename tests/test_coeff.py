@@ -5,6 +5,7 @@ APRON Coefficients - Unit Tests
 :Author: Caterina Urban
 """
 import unittest
+from copy import deepcopy
 
 from apronpy.coeff import PyDoubleScalarCoeff, PyMPQScalarCoeff, PyMPFRScalarCoeff, \
     PyDoubleIntervalCoeff, PyMPQIntervalCoeff, PyMPFRIntervalCoeff
@@ -14,6 +15,13 @@ class TestPyDoubleScalarCoeff(unittest.TestCase):
     
     def test_init(self):
         self.assertEqual(str(PyDoubleScalarCoeff()), '0.0')
+
+    def test_deepcopy(self):
+        c0 = PyDoubleScalarCoeff()
+        c1 = deepcopy(c0)
+        c2 = c0
+        self.assertNotEqual(id(c0), id(c1))
+        self.assertEqual(id(c0), id(c2))
 
     def test_cmp(self):
         self.assertTrue(PyDoubleScalarCoeff(-0.5) < PyDoubleScalarCoeff())
@@ -34,6 +42,13 @@ class TestPyMPQScalarCoeff(unittest.TestCase):
     def test_init(self):
         self.assertEqual(str(PyMPQScalarCoeff()), '0')
 
+    def test_deepcopy(self):
+        c0 = PyMPQScalarCoeff()
+        c1 = deepcopy(c0)
+        c2 = c0
+        self.assertNotEqual(id(c0), id(c1))
+        self.assertEqual(id(c0), id(c2))
+
     def test_cmp(self):
         self.assertTrue(PyMPQScalarCoeff(-1, 2) < PyMPQScalarCoeff())
         self.assertFalse(PyMPQScalarCoeff() < PyMPQScalarCoeff(-1, 2))
@@ -53,6 +68,13 @@ class TestPyMPFRScalarCoeff(unittest.TestCase):
     def test_init(self):
         self.assertEqual(str(PyMPFRScalarCoeff(0)), '0.0')
 
+    def test_deepcopy(self):
+        c0 = PyMPFRScalarCoeff(0)
+        c1 = deepcopy(c0)
+        c2 = c0
+        self.assertNotEqual(id(c0), id(c1))
+        self.assertEqual(id(c0), id(c2))
+
     def test_cmp(self):
         self.assertTrue(PyMPFRScalarCoeff(-0.5) < PyMPFRScalarCoeff(0))
         self.assertFalse(PyMPFRScalarCoeff(0) < PyMPFRScalarCoeff(-0.5))
@@ -71,6 +93,13 @@ class TestPyDoubleIntervalCoeff(unittest.TestCase):
 
     def test_init(self):
         self.assertEqual(str(PyDoubleIntervalCoeff()), '[0.0,0.0]')
+
+    def test_deepcopy(self):
+        c0 = PyDoubleIntervalCoeff()
+        c1 = deepcopy(c0)
+        c2 = c0
+        self.assertNotEqual(id(c0), id(c1))
+        self.assertEqual(id(c0), id(c2))
         
     def test_cmp(self):
         self.assertTrue(PyDoubleIntervalCoeff() < PyDoubleIntervalCoeff(-0.5, 0.5))
@@ -90,6 +119,13 @@ class TestPyMPQIntervalCoeff(unittest.TestCase):
 
     def test_init(self):
         self.assertEqual(str(PyMPQIntervalCoeff()), '[0,0]')
+
+    def test_deepcopy(self):
+        c0 = PyMPQIntervalCoeff()
+        c1 = deepcopy(c0)
+        c2 = c0
+        self.assertNotEqual(id(c0), id(c1))
+        self.assertEqual(id(c0), id(c2))
         
     def test_cmp(self):
         self.assertTrue(PyMPQIntervalCoeff() < PyMPQIntervalCoeff(-1, 1, 2, 2))
@@ -109,6 +145,13 @@ class TestPyMPFRIntervalCoeff(unittest.TestCase):
 
     def test_init(self):
         self.assertEqual(str(PyMPFRIntervalCoeff(0, 0)), '[0.0,0.0]')
+
+    def test_deepcopy(self):
+        c0 = PyMPFRIntervalCoeff(0, 0)
+        c1 = deepcopy(c0)
+        c2 = c0
+        self.assertNotEqual(id(c0), id(c1))
+        self.assertEqual(id(c0), id(c2))
         
     def test_cmp(self):
         self.assertTrue(PyMPFRIntervalCoeff(0, 0) < PyMPFRIntervalCoeff(-0.5, 0.5))

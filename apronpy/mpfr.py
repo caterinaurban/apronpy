@@ -7,6 +7,7 @@ MPFR Multiprecision Floating-Point Numbers
 from _ctypes import Structure, POINTER, byref
 from ctypes import c_long, c_int, c_ulonglong, c_double
 from enum import IntEnum
+from typing import Union
 
 from apronpy.cdll import libmpfr
 
@@ -14,6 +15,7 @@ from apronpy.cdll import libmpfr
 # initialization and assignment functions
 MPFR_init = libmpfr.mpfr_init
 MPFR_clear = libmpfr.mpfr_clear
+MPFR_set = libmpfr.mpfr_set
 MPFR_set_d = libmpfr.mpfr_set_d
 # conversion functions
 MPFR_get_d = libmpfr.mpfr_get_d
@@ -70,11 +72,22 @@ class Rnd(IntEnum):
 
 class PyMPFR:
 
-    def __init__(self, value: float, rounding: Rnd = Rnd.MPFR_RNDN):
-        self.rounding = rounding
+    def __init__(self, value: Union[MPFR, int, float], rounding: Rnd = Rnd.MPFR_RNDN):
         self.mpfr = MPFR()
         MPFR_init(self)
-        MPFR_set_d(self, value, rounding)
+        if isinstance(value, MPFR):
+            MPFR_set(self, value, rounding)
+        else:
+            assert isinstance(value, (int, float))
+            MPFR_set_d(self, value, rounding)
+        self.rounding = rounding
+
+    def __deepcopy__(self, memodict=None):
+        if memodict is None:
+            memodict = {}
+        result = PyMPFR(self.mpfr, self.rounding)
+        memodict[id(self)] = result
+        return result
         
     def __del__(self):
         MPFR_clear(self)
@@ -147,6 +160,7 @@ class PyMPFR:
 # initialization and assignment functions
 MPFR_init.argtypes = [PyMPFR]
 MPFR_clear.argtypes = [PyMPFR]
+MPFR_set.argtypes = [PyMPFR, POINTER(MPFR), c_int]
 MPFR_set_d.argtypes = [PyMPFR, c_double, c_int]
 # conversion functions
 MPFR_get_d.argtypes = [POINTER(MPFR), c_int]

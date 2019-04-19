@@ -5,6 +5,7 @@ APRON Environments - Unit Tests
 :Author: Caterina Urban
 """
 import unittest
+from copy import deepcopy
 
 from apronpy.environment import PyEnvironment
 from apronpy.var import PyVar
@@ -19,6 +20,13 @@ class TestPyEnvironment(unittest.TestCase):
         self.assertEqual(str(PyEnvironment([PyVar('x')], [])), '{x|}')
         self.assertEqual(str(PyEnvironment([PyVar('x')])), '{x|}')
         self.assertRaises(ValueError, PyEnvironment, [PyVar('x')], [PyVar('x'), PyVar('y')])
+
+    def test_deepcopy(self):
+        e0 = PyEnvironment([PyVar('x')], [PyVar('y'), PyVar('z')])
+        e1 = deepcopy(e0)
+        e2 = e0
+        self.assertNotEqual(id(e0), id(e1))
+        self.assertEqual(id(e0), id(e2))
 
     def test_len(self):
         self.assertEqual(len(PyEnvironment([PyVar('x')], [PyVar('y'), PyVar('z')])), 3)
