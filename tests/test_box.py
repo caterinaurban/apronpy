@@ -5,6 +5,7 @@ APRON Boxes - Unit Tests
 :Author: Caterina Urban
 """
 import unittest
+from copy import deepcopy
 
 from apronpy.box import PyBoxD, PyBoxMPQ, PyBoxMPFR
 from apronpy.environment import PyEnvironment
@@ -47,6 +48,14 @@ class TestPyBoxD(unittest.TestCase):
         b3 = PyBoxD(e, variables=[PyVar('z')], intervals=[PyMPFRInterval(-2.5, 2.5)])
         self.assertFalse(b3.is_bottom())
         self.assertTrue(PyBoxD.top(e).is_top())
+
+    def test_deepcopy(self):
+        e = PyEnvironment([PyVar('x0'), PyVar('y')], [PyVar('z')])
+        b0 = PyBoxD(e, variables=[PyVar('x0')], intervals=[PyDoubleInterval(-2.5, 2.5)])
+        b1 = deepcopy(b0)
+        b2 = b0
+        self.assertNotEqual(id(b0), id(b1))
+        self.assertEqual(id(b0), id(b2))
 
     def test_meet(self):
         e = PyEnvironment([PyVar('x0'), PyVar('y')], [PyVar('z')])

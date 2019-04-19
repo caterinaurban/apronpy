@@ -41,20 +41,26 @@ class PyAbstract1(metaclass=ABCMeta):
     manager: POINTER(Manager)
 
     # noinspection PyTypeChecker
-    def __init__(self, environment: PyEnvironment, bottom: bool = False,
+    def __init__(self, abstract1_or_environment: PyEnvironment, bottom: bool = False,
                  variables: List[PyVar] = None, intervals: List[PyInterval] = None):
-        if bottom:
-            self.abstract1 = libapron.ap_abstract1_bottom(self.manager, environment)
+        if isinstance(abstract1_or_environment, Abstract1):
+            self.abstract1 = abstract1_or_environment
+        elif bottom:
+            assert isinstance(abstract1_or_environment, PyEnvironment)
+            self.abstract1 = libapron.ap_abstract1_bottom(self.manager, abstract1_or_environment)
         elif variables and intervals:
+            assert isinstance(abstract1_or_environment, PyEnvironment)
             size = len(variables)
             v_typ: Type = c_char_p * size
             v_arr = v_typ(*(x._as_parameter_ for x in variables))
             i_typ: Type = POINTER(Interval) * size
             i_arr = i_typ(*(x._as_parameter_ for x in intervals))
             man = self.manager
-            self.abstract1 = libapron.ap_abstract1_of_box(man, environment, v_arr, i_arr, size)
+            a1 = libapron.ap_abstract1_of_box(man, abstract1_or_environment, v_arr, i_arr, size)
+            self.abstract1 = a1
         else:
-            self.abstract1 = libapron.ap_abstract1_top(self.manager, environment)
+            assert isinstance(abstract1_or_environment, PyEnvironment)
+            self.abstract1 = libapron.ap_abstract1_top(self.manager, abstract1_or_environment)
 
     @classmethod
     def bottom(cls, environment: PyEnvironment):
@@ -63,6 +69,14 @@ class PyAbstract1(metaclass=ABCMeta):
     @classmethod
     def top(cls, environment: PyEnvironment):
         return cls(environment)
+
+    def __deepcopy__(self, memodict=None):
+        if memodict is None:
+            memodict = {}
+        abstract1 = libapron.ap_abstract1_copy(self.manager, self)
+        result = type(self)(abstract1)
+        memodict[id(self)] = result
+        return result
 
     def __del__(self):
         libapron.ap_abstract1_clear(self.manager, self)
@@ -159,6 +173,8 @@ class PyAbstract1(metaclass=ABCMeta):
 
 man_p = POINTER(Manager)
 pya1 = PyAbstract1
+libapron.ap_abstract1_copy.argtypes = [man_p, pya1]
+libapron.ap_abstract1_copy.restype = Abstract1
 libapron.ap_abstract1_clear.argtypes = [man_p, pya1]
 libapron.ap_abstract1_bottom.argtypes = [man_p, PyEnvironment]
 libapron.ap_abstract1_bottom.restype = Abstract1
