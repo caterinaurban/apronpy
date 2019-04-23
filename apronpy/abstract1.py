@@ -41,13 +41,24 @@ class PyAbstract1(metaclass=ABCMeta):
     manager: POINTER(Manager)
 
     # noinspection PyTypeChecker
-    def __init__(self, abstract1_or_environment: PyEnvironment, bottom: bool = False,
+    def __init__(self, abstract1_or_environment: Union[Abstract1, PyEnvironment],
+                 bottom: bool = False, array: Union[PyLincons1Array, PyTcons1Array] = None,
                  variables: List[PyVar] = None, intervals: List[PyInterval] = None):
         if isinstance(abstract1_or_environment, Abstract1):
             self.abstract1 = abstract1_or_environment
         elif bottom:
             assert isinstance(abstract1_or_environment, PyEnvironment)
             self.abstract1 = libapron.ap_abstract1_bottom(self.manager, abstract1_or_environment)
+        elif array and isinstance(array, PyLincons1Array):
+            assert isinstance(abstract1_or_environment, PyEnvironment)
+            man = self.manager
+            a1 = libapron.ap_abstract1_of_lincons_array(man, abstract1_or_environment, array)
+            self.abstract1 = a1
+        elif array and isinstance(array, PyTcons1Array):
+            assert isinstance(abstract1_or_environment, PyEnvironment)
+            man = self.manager
+            a1 = libapron.ap_abstract1_of_tcons_array(man, abstract1_or_environment, array)
+            self.abstract1 = a1
         elif variables and intervals:
             assert isinstance(abstract1_or_environment, PyEnvironment)
             size = len(variables)
@@ -65,6 +76,10 @@ class PyAbstract1(metaclass=ABCMeta):
     @classmethod
     def bottom(cls, environment: PyEnvironment):
         return cls(environment, bottom=True)
+
+    @classmethod
+    def from_constraints(cls, environment: PyEnvironment, array):
+        return cls(environment, array=array)
 
     @classmethod
     def top(cls, environment: PyEnvironment):
@@ -204,6 +219,10 @@ libapron.ap_abstract1_widening.argtypes = [man_p, pya1, pya1]
 libapron.ap_abstract1_widening.restype = Abstract1
 pyl1 = PyLinexpr1
 pya1_p = POINTER(Abstract1)
+libapron.ap_abstract1_of_lincons_array.argtypes = [man_p, PyEnvironment, PyLincons1Array]
+libapron.ap_abstract1_of_lincons_array.restype = Abstract1
+libapron.ap_abstract1_of_tcons_array.argtypes = [man_p, PyEnvironment, PyTcons1Array]
+libapron.ap_abstract1_of_tcons_array.restype = Abstract1
 libapron.ap_abstract1_assign_linexpr.argtypes = [man_p, c_bool, pya1, PyVar, pyl1, pya1_p]
 libapron.ap_abstract1_assign_linexpr.restype = Abstract1
 libapron.ap_abstract1_substitute_linexpr.argtypes = [man_p, c_bool, pya1, PyVar, pyl1, pya1_p]

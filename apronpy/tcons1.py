@@ -159,21 +159,21 @@ class PyTcons1Array:
     def __init__(self, tcons1s: List[Tcons1] = None, environment: PyEnvironment = None):
         if tcons1s:
             size = len(tcons1s)
-            tcons1s[0].tcons1.env.contents.count += 1
-            self.tcons1array = libapron.ap_tcons1_array_make(tcons1s[0].tcons1.env, size)
+            tcons1s[0].env.contents.count += 1
+            self.tcons1array = libapron.ap_tcons1_array_make(tcons1s[0].env, size)
             for i in range(size):
                 tcons1i_copy = Tcons1()
                 tcons1i_copy.tcons0 = Tcons0()
-                texpr0_copy = libapron.ap_texpr0_copy(tcons1s[i].tcons1.tcons0.texpr0)
+                texpr0_copy = libapron.ap_texpr0_copy(tcons1s[i].tcons0.texpr0)
                 tcons1i_copy.tcons0.texpr0 = texpr0_copy
-                tcons1i_copy.tcons0.constyp = c_uint(tcons1s[i].tcons1.tcons0.constyp)
-                scalar = tcons1s[i].tcons1.tcons0.scalar
+                tcons1i_copy.tcons0.constyp = c_uint(tcons1s[i].tcons0.constyp)
+                scalar = tcons1s[i].tcons0.scalar
                 if scalar:
                     tcons1i_copy.tcons0.scalar = libapron.ap_scalar_alloc_set(scalar)
                 else:
                     tcons1i_copy.tcons0.scalar = None
-                tcons1s[i].tcons1.env.contents.count += 1
-                tcons1i_copy.env = tcons1s[i].tcons1.env
+                tcons1s[i].env.contents.count += 1
+                tcons1i_copy.env = tcons1s[i].env
                 libapron.ap_tcons1_array_set(self, i, byref(tcons1i_copy))
         else:
             self.tcons1array = libapron.ap_tcons1_array_make(environment, 0)
@@ -194,4 +194,4 @@ class PyTcons1Array:
 libapron.ap_tcons1_array_make.argtypes = [POINTER(Environment), c_size_t]
 libapron.ap_tcons1_array_make.restype = TCons1Array
 libapron.ap_tcons1_array_clear.argtypes = [PyTcons1Array]
-libapron.ap_tcons1_array_set.argtypes = [PyTcons1Array, c_size_t, PyTcons1]
+libapron.ap_tcons1_array_set.argtypes = [PyTcons1Array, c_size_t, POINTER(Tcons1)]
