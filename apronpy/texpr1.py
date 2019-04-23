@@ -4,12 +4,13 @@ APRON Tree Expressions (Level 1)
 
 :Author: Caterina Urban
 """
-from _ctypes import Structure, POINTER
-from ctypes import c_char_p, c_uint
+from _ctypes import Structure, POINTER, byref
+from copy import deepcopy
+from ctypes import c_char_p, c_uint, c_int
 from typing import Union
 
 from apronpy.cdll import libapron
-from apronpy.coeff import PyCoeff
+from apronpy.coeff import PyCoeff, PyMPFRScalarCoeff
 from apronpy.environment import Environment, PyEnvironment
 from apronpy.linexpr1 import PyLinexpr1
 from apronpy.texpr0 import Texpr0, TexprDiscr, TexprOp, TexprRtype, TexprRdir
@@ -74,11 +75,19 @@ class Texpr1(Structure):
 
 class PyTexpr1:
 
-    def __init__(self, expr: Union[PyLinexpr1, POINTER(Texpr1)]):
+    def __init__(self, expr: Union[Texpr1, PyLinexpr1]):
         if isinstance(expr, PyLinexpr1):
-            self.texpr1 = libapron.ap_texpr1_from_linexpr1(expr)
-        elif isinstance(expr, POINTER(Texpr1)):
-            self.texpr1 = expr
+            self.texpr1: POINTER(Texpr1) = libapron.ap_texpr1_from_linexpr1(expr)
+        else:
+            assert isinstance(expr, POINTER(Texpr1))
+            self.texpr1: POINTER(Texpr1) = expr
+
+    def __deepcopy__(self, memodict=None):
+        if memodict is None:
+            memodict = {}
+        result = type(self)(libapron.ap_texpr1_copy(self))
+        memodict[id(self)] = result
+        return result
 
     def __del__(self):
         libapron.ap_texpr1_free(self)
@@ -92,8 +101,14 @@ class PyTexpr1:
         return cls(libapron.ap_texpr1_var(environment, var))
 
     @classmethod
+    def unop(cls, op: TexprOp, expr, typ: TexprRtype, dir: TexprRdir):
+        return cls(libapron.ap_texpr1_unop(op, libapron.ap_texpr1_copy(expr), typ, dir))
+
+    @classmethod
     def binop(cls, op: TexprOp, expr_a, expr_b, typ: TexprRtype, dir: TexprRdir):
-        return cls(libapron.ap_texpr1_binop(op, expr_a, expr_b, typ, dir))
+        left = libapron.ap_texpr1_copy(expr_a)
+        right = libapron.ap_texpr1_copy(expr_b)
+        return cls(libapron.ap_texpr1_binop(op, left, right, typ, dir))
 
     @property
     def _as_parameter_(self):
@@ -117,12 +132,12 @@ libapron.ap_texpr1_cst.argtypes = [PyEnvironment, PyCoeff]
 libapron.ap_texpr1_cst.restype = POINTER(Texpr1)
 libapron.ap_texpr1_var.argtypes = [PyEnvironment, c_char_p]
 libapron.ap_texpr1_var.restype = POINTER(Texpr1)
-libapron.ap_texpr1_unop.argtypes = [c_uint, PyTexpr1, c_uint, c_uint]
+libapron.ap_texpr1_unop.argtypes = [c_int, POINTER(Texpr1), c_int, c_int]
 libapron.ap_texpr1_unop.restype = POINTER(Texpr1)
-libapron.ap_texpr1_binop.argtypes = [c_uint, PyTexpr1, PyTexpr1, c_uint, c_uint]
+libapron.ap_texpr1_binop.argtypes = [c_int, POINTER(Texpr1), POINTER(Texpr1), c_int, c_int]
 libapron.ap_texpr1_binop.restype = POINTER(Texpr1)
 libapron.ap_texpr1_copy.argtypes = [PyTexpr1]
-libapron.ap_texpr1_copy.restype = Texpr1
+libapron.ap_texpr1_copy.restype = POINTER(Texpr1)
 libapron.ap_texpr1_free.argtypes = [PyTexpr1]
 libapron.ap_texpr1_from_linexpr1.argtypes = [PyLinexpr1]
 libapron.ap_texpr1_from_linexpr1.restype = POINTER(Texpr1)

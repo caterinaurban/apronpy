@@ -6,6 +6,8 @@ APRON Tree Constraints (Level 1) - Unit Tests
 """
 import unittest
 
+from apronpy.texpr1 import PyTexpr1
+
 from apronpy.coeff import PyDoubleScalarCoeff
 from apronpy.environment import PyEnvironment
 from apronpy.lincons0 import ConsTyp
@@ -28,6 +30,15 @@ class TestPyTcons1(unittest.TestCase):
         self.assertEqual(str(PyTcons1.unsat(e)), '-1.0 >= 0')
         z = PyLincons1(ConsTyp.AP_CONS_DISEQ, PyLinexpr1(e))
         self.assertEqual(str(PyTcons1(z)), '0.0 != 0')
+
+    def test_make(self):
+        e = PyEnvironment([PyVar('x0'), PyVar('y')], [PyVar('z')])
+        x = PyLinexpr1(e)
+        x.set_coeff(PyVar('x0'), PyDoubleScalarCoeff(3))
+        x.set_coeff(PyVar('z'), PyDoubleScalarCoeff(-9))
+        x.set_cst(PyDoubleScalarCoeff(8))
+        c = PyTcons1.make(PyTexpr1(x), ConsTyp.AP_CONS_SUPEQ)
+        self.assertEqual(str(c), '8.0 + 3.0 · x0 - 9.0 · z >= 0')
 
 
 if __name__ == '__main__':

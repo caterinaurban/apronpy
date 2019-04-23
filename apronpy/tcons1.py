@@ -5,6 +5,7 @@ APRON Tree Constraints (Level 1)
 :Author: Caterina Urban
 """
 from _ctypes import Structure, POINTER, byref
+from copy import deepcopy
 from ctypes import c_size_t
 from typing import List, Union
 
@@ -18,6 +19,7 @@ from apronpy.scalar import c_uint, PyScalar
 from apronpy.tcons0 import Tcons0, Tcons0Array
 from apronpy.texpr0 import TexprOp, TexprDiscr
 from apronpy.texpr1 import PyTexpr1
+from apronpy.texpr0 import Texpr0
 
 
 class Tcons1(Structure):
@@ -116,12 +118,14 @@ class PyTcons1:
     def make(cls, texpr: PyTexpr1, typ: ConsTyp, cst: PyScalar = None):
         tcons1 = Tcons1()
         tcons1.tcons0 = Tcons0()
-        tcons1.tcons0.texpr0 = libapron.ap_texpr0_copy(texpr.texpr1.texpr0)
+        tcons1.tcons0.texpr0 = libapron.ap_texpr0_copy(texpr.texpr1.contents.texpr0)
         tcons1.tcons0.constyp = c_uint(typ)
         if cst:
             tcons1.tcons0.scalar = libapron.ap_scalar_alloc_set(cst)
         else:
             tcons1.tcons0.scalar = None
+        texpr.texpr1.contents.env.contents.count += 1
+        tcons1.env = texpr.texpr1.contents.env
         return cls(tcons1)
 
     @classmethod
