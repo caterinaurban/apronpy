@@ -5,7 +5,7 @@ GMP Multi-Precision Rationals
 :Author: Caterina Urban
 """
 from _ctypes import Structure, byref, POINTER
-from ctypes import c_int, c_char_p, c_long, c_ulong
+from ctypes import c_int, c_char_p, c_long, c_ulong, c_double
 from typing import Union
 
 from apronpy.cdll import libgmp
@@ -18,6 +18,7 @@ MPQ_clear = libgmp.__gmpq_clear
 # assignment functions
 MPQ_set = libgmp.__gmpq_set
 MPQ_set_si = libgmp.__gmpq_set_si
+MPQ_set_d = libgmp.__gmpq_set_d
 # conversion functions
 MPQ_get_str = libgmp.__gmpq_get_str
 # comparison functions
@@ -49,13 +50,15 @@ class MPQ(Structure):
 
 class PyMPQ:
 
-    def __init__(self, value_or_numerator: Union[MPQ, int] = 0, denominator: int = 1):
+    def __init__(self, value_or_numerator: Union[MPQ, float, int] = 0, denominator: int = 1):
         self.mpq = MPQ()
         MPQ_init(self)
         if isinstance(value_or_numerator, MPQ):
             MPQ_set(self, value_or_numerator)
+        elif isinstance(value_or_numerator, float):
+            MPQ_set_d(self, value_or_numerator)
         else:
-            assert isinstance(value_or_numerator, int)
+            assert isinstance(value_or_numerator, int) and isinstance(denominator, int)
             MPQ_set_si(self, c_long(value_or_numerator), c_ulong(denominator))
             MPQ_canonicalize(self)
 
@@ -141,6 +144,7 @@ MPQ_clear.argtypes = [PyMPQ]
 # assignment functions
 MPQ_set.argtypes = [PyMPQ, POINTER(MPQ)]
 MPQ_set_si.argtypes = [PyMPQ, c_long, c_ulong]
+MPQ_set_d.argtypes = [PyMPQ, c_double]
 # conversion functions
 MPQ_get_str.argtypes = [c_char_p, c_int, POINTER(MPQ)]
 MPQ_get_str.restype = c_char_p

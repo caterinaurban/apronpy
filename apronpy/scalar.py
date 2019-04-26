@@ -189,6 +189,9 @@ class PyMPQScalar(PyScalar):
     def __init__(self, value_or_numerator=0, denumerator=1):
         if isinstance(value_or_numerator, (Scalar, PyMPQ)):
             super().__init__(discr=ScalarDiscr.AP_SCALAR_MPQ, value=value_or_numerator)
+        elif isinstance(value_or_numerator, float):
+            mpq = PyMPQ(value_or_numerator)
+            super().__init__(discr=ScalarDiscr.AP_SCALAR_MPQ, value=mpq)
         else:
             assert isinstance(value_or_numerator, int) and isinstance(denumerator, int)
             mpq = PyMPQ(value_or_numerator, denumerator)
