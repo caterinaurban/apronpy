@@ -10,7 +10,7 @@ from ctypes import c_size_t, c_char_p, c_bool
 from typing import List, Type, Union
 
 from apronpy.lincons1 import Lincons1Array, PyLincons1Array
-from apronpy.linexpr1 import PyLinexpr1
+from apronpy.linexpr1 import PyLinexpr1, Linexpr1
 
 from apronpy.abstract0 import Abstract0
 from apronpy.cdll import libapron
@@ -18,8 +18,11 @@ from apronpy.environment import Environment, PyEnvironment
 from apronpy.interval import Interval, PyInterval
 from apronpy.manager import Manager
 from apronpy.tcons1 import PyTcons1Array
-from apronpy.texpr1 import PyTexpr1
+from apronpy.texpr1 import PyTexpr1, Texpr1
 from apronpy.var import PyVar
+
+APRON_substitute_linexpr_array = libapron.ap_abstract1_substitute_linexpr_array
+APRON_substitute_texpr_array = libapron.ap_abstract1_substitute_texpr_array
 
 
 class Abstract1(Structure):
@@ -173,16 +176,46 @@ class PyAbstract1(metaclass=ABCMeta):
             abstract1.abstract1 = result
         return abstract1
 
-    def substitute(self, var: PyVar, expr: Union[PyLinexpr1, PyTexpr1]):
+    # noinspection PyTypeChecker
+    def substitute(self, var_or_vars: Union[PyVar, List[PyVar]],
+                   expr_or_exprs: Union[PyLinexpr1, PyTexpr1, List[PyLinexpr1], List[PyTexpr1]]):
         abstract1 = type(self)(self.environment)
         man = self.manager
-        if isinstance(expr, PyLinexpr1):
-            result = libapron.ap_abstract1_substitute_linexpr(man, False, self, var, expr, None)
-            abstract1.abstract1 = result
+        if isinstance(var_or_vars, PyVar):
+            var = var_or_vars
+            expr = expr_or_exprs
+            if isinstance(expr, PyLinexpr1):
+                a1 = libapron.ap_abstract1_substitute_linexpr(man, False, self, var, expr, None)
+                abstract1.abstract1 = a1
+            else:
+                assert isinstance(expr, PyTexpr1)
+                a1 = libapron.ap_abstract1_substitute_texpr(man, False, self, var, expr, None)
+                abstract1.abstract1 = a1
         else:
-            assert isinstance(expr, PyTexpr1)
-            result = libapron.ap_abstract1_substitute_texpr(man, False, self, var, expr, None)
-            abstract1.abstract1 = result
+            assert isinstance(var_or_vars, list)
+            assert all(isinstance(var, PyVar) for var in var_or_vars)
+            exprs = expr_or_exprs
+            if all(isinstance(expr, PyLinexpr1) for expr in exprs):
+                v_size = len(var_or_vars)
+                e_size = len(exprs)
+                assert v_size == e_size
+                v_typ: Type = c_char_p * v_size
+                v_arr = v_typ(*(x._as_parameter_ for x in var_or_vars))
+                e_typ: Type = Linexpr1 * e_size
+                e_arr = e_typ(*(e.linexpr1 for e in exprs))
+                a1 = APRON_substitute_linexpr_array(man, False, self, v_arr, e_arr, v_size, None)
+                abstract1.abstract1 = a1
+            else:
+                assert all(isinstance(expr, PyTexpr1) for expr in exprs)
+                v_size = len(var_or_vars)
+                e_size = len(exprs)
+                assert v_size == e_size
+                v_typ: Type = c_char_p * v_size
+                v_arr = v_typ(*(x._as_parameter_ for x in var_or_vars))
+                e_typ: Type = Texpr1 * e_size
+                e_arr = e_typ(*(e.texpr1.contents for e in exprs))
+                a1 = APRON_substitute_texpr_array(man, False, self, v_arr, e_arr, v_size, None)
+                abstract1.abstract1 = a1
         return abstract1
 
 
@@ -225,9 +258,15 @@ libapron.ap_abstract1_of_tcons_array.argtypes = [man_p, PyEnvironment, PyTcons1A
 libapron.ap_abstract1_of_tcons_array.restype = Abstract1
 libapron.ap_abstract1_assign_linexpr.argtypes = [man_p, c_bool, pya1, PyVar, pyl1, pya1_p]
 libapron.ap_abstract1_assign_linexpr.restype = Abstract1
+pyl1_p = POINTER(Linexpr1)
+APRON_substitute_linexpr_array.argtypes = [man_p, c_bool, pya1, pyvar_p, pyl1_p, c_size_t, pya1_p]
+APRON_substitute_linexpr_array.restype = Abstract1
 libapron.ap_abstract1_substitute_linexpr.argtypes = [man_p, c_bool, pya1, PyVar, pyl1, pya1_p]
 libapron.ap_abstract1_substitute_linexpr.restype = Abstract1
 libapron.ap_abstract1_assign_texpr.argtypes = [man_p, c_bool, pya1, PyVar, PyTexpr1, pya1_p]
 libapron.ap_abstract1_assign_texpr.restype = Abstract1
+pyt1_p = POINTER(Texpr1)
+APRON_substitute_texpr_array.argtypes = [man_p, c_bool, pya1, pyvar_p, pyt1_p, c_size_t, pya1_p]
+APRON_substitute_texpr_array.restype = Abstract1
 libapron.ap_abstract1_substitute_texpr.argtypes = [man_p, c_bool, pya1, PyVar, PyTexpr1, pya1_p]
 libapron.ap_abstract1_substitute_texpr.restype = Abstract1

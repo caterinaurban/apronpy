@@ -4,13 +4,12 @@ APRON Tree Expressions (Level 1)
 
 :Author: Caterina Urban
 """
-from _ctypes import Structure, POINTER, byref
-from copy import deepcopy
-from ctypes import c_char_p, c_uint, c_int
+from _ctypes import Structure, POINTER
+from ctypes import c_char_p, c_int
 from typing import Union
 
 from apronpy.cdll import libapron
-from apronpy.coeff import PyCoeff, PyMPFRScalarCoeff
+from apronpy.coeff import PyCoeff
 from apronpy.environment import Environment, PyEnvironment
 from apronpy.linexpr1 import PyLinexpr1
 from apronpy.texpr0 import Texpr0, TexprDiscr, TexprOp, TexprRtype, TexprRdir
@@ -101,14 +100,14 @@ class PyTexpr1:
         return cls(libapron.ap_texpr1_var(environment, var))
 
     @classmethod
-    def unop(cls, op: TexprOp, expr, typ: TexprRtype, dir: TexprRdir):
-        return cls(libapron.ap_texpr1_unop(op, libapron.ap_texpr1_copy(expr), typ, dir))
+    def unop(cls, op: TexprOp, expr, typ: TexprRtype, rdir: TexprRdir):
+        return cls(libapron.ap_texpr1_unop(op, libapron.ap_texpr1_copy(expr), typ, rdir))
 
     @classmethod
-    def binop(cls, op: TexprOp, expr_a, expr_b, typ: TexprRtype, dir: TexprRdir):
+    def binop(cls, op: TexprOp, expr_a, expr_b, typ: TexprRtype, rdir: TexprRdir):
         left = libapron.ap_texpr1_copy(expr_a)
         right = libapron.ap_texpr1_copy(expr_b)
-        return cls(libapron.ap_texpr1_binop(op, left, right, typ, dir))
+        return cls(libapron.ap_texpr1_binop(op, left, right, typ, rdir))
 
     @property
     def _as_parameter_(self):

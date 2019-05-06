@@ -5,7 +5,6 @@ APRON Tree Constraints (Level 1)
 :Author: Caterina Urban
 """
 from _ctypes import Structure, POINTER, byref
-from copy import deepcopy
 from ctypes import c_size_t
 from typing import List, Union
 
@@ -19,7 +18,6 @@ from apronpy.scalar import c_uint, PyScalar
 from apronpy.tcons0 import Tcons0, Tcons0Array
 from apronpy.texpr0 import TexprOp, TexprDiscr
 from apronpy.texpr1 import PyTexpr1
-from apronpy.texpr0 import Texpr0
 
 
 class Tcons1(Structure):
@@ -137,12 +135,12 @@ class TCons1Array(Structure):
                 else:
                     return '{} {}'.format(repr(TexprOp(op)), expr_a)
 
-        env = self.env.contents
         array = list()
         for i in range(self.tcons0_array.size):
             constyp = ConsTyp(self.tcons0_array.p[i].constyp)
             scalar = self.tcons0_array.p[i].scalar
-            result = do(self.tcons0_array.p[i].texpr0.contents, env).replace('+ -', '- ')
+            result = do(self.tcons0_array.p[i].texpr0.contents, self.env.contents)
+            result = result.replace('+ -', '- ')
             if scalar:
                 array.append('{} {} {}'.format(result, repr(constyp), scalar.contents))
             else:
