@@ -105,7 +105,7 @@ class Lincons1Array(Structure):
             else:
                 array.append('{} {} 0'.format(result.replace('+ -', '- '), repr(constyp)))
 
-        return '[' + ' , '.join(array) + ']'
+        return ' ∧ '.join(array)
 
 
 class PyLincons1:

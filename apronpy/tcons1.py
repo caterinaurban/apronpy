@@ -145,7 +145,7 @@ class TCons1Array(Structure):
                 array.append('{} {} {}'.format(result, repr(constyp), scalar.contents))
             else:
                 array.append('{} {} 0'.format(result, repr(constyp)))
-        return '[' + ' , '.join(array) + ']'
+        return ' ∧ '.join(array)
 
 
 class PyTcons1:
