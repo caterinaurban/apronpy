@@ -5,6 +5,7 @@ APRON Tree Constraints (Level 1) - Unit Tests
 :Author: Caterina Urban
 """
 import unittest
+from copy import deepcopy
 
 from apronpy.texpr1 import PyTexpr1
 
@@ -39,6 +40,18 @@ class TestPyTcons1(unittest.TestCase):
         x.set_cst(PyDoubleScalarCoeff(8))
         c = PyTcons1.make(PyTexpr1(x), ConsTyp.AP_CONS_SUPEQ)
         self.assertEqual(str(c), '8.0 + 3.0 · x0 - 9.0 · z >= 0')
+
+    def test_deepcopy(self):
+        e = PyEnvironment([PyVar('x0'), PyVar('y')], [PyVar('z')])
+        x = PyLinexpr1(e)
+        x.set_coeff(PyVar('x0'), PyDoubleScalarCoeff(3))
+        x.set_coeff(PyVar('z'), PyDoubleScalarCoeff(-9))
+        x.set_cst(PyDoubleScalarCoeff(8))
+        c0 = PyTcons1.make(PyTexpr1(x), ConsTyp.AP_CONS_SUPEQ)
+        c1 = deepcopy(c0)
+        c2 = c0
+        self.assertNotEqual(id(c0), id(c1))
+        self.assertEqual(id(c0), id(c2))
 
 
 if __name__ == '__main__':

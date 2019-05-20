@@ -5,6 +5,7 @@ APRON Tree Constraints (Level 1)
 :Author: Caterina Urban
 """
 from _ctypes import Structure, POINTER, byref
+from copy import deepcopy
 from ctypes import c_size_t
 from typing import List, Union
 
@@ -32,6 +33,22 @@ class Tcons1(Structure):
         ('tcons0', Tcons0),
         ('env', POINTER(Environment))
     ]
+
+    def __deepcopy__(self, memodict=None):
+        if memodict is None:
+            memodict = {}
+        result = Tcons1()
+        result.tcons0 = Tcons0()
+        result.tcons0.texpr0 = libapron.ap_texpr0_copy(self.tcons0.texpr0)
+        result.tcons0.constyp = self.tcons0.constyp
+        if self.tcons0.scalar:
+            result.tcons0.scalar = libapron.ap_scalar_alloc_set(self.tcons0.scalar)
+        else:
+            result.tcons0.scalar = None
+        self.env.contents.count += 1
+        result.env = self.env
+        memodict[id(self)] = result
+        return result
 
     def __repr__(self):
         def precendence(texpr0):
@@ -185,6 +202,13 @@ class PyTcons1:
         lincons = PyLincons1(ConsTyp.AP_CONS_SUPEQ, x)
         return cls(lincons)
 
+    def __deepcopy__(self, memodict=None):
+        if memodict is None:
+            memodict = {}
+        result = PyTcons1(deepcopy(self.tcons1))
+        memodict[id(self)] = result
+        return result
+
     def __del__(self):
         libapron.ap_tcons1_clear(self)
 
@@ -206,25 +230,12 @@ libapron.ap_tcons1_clear.argtypes = [PyTcons1]
 
 class PyTcons1Array:
 
-    def __init__(self, tcons1s: List[Tcons1] = None, environment: PyEnvironment = None):
+    def __init__(self, tcons1s: List[PyTcons1] = None, environment: PyEnvironment = None):
         if tcons1s:
             size = len(tcons1s)
-            tcons1s[0].env.contents.count += 1
-            self.tcons1array = libapron.ap_tcons1_array_make(tcons1s[0].env, size)
+            self.tcons1array = libapron.ap_tcons1_array_make(tcons1s[0].tcons1.env, size)
             for i in range(size):
-                tcons1i_copy = Tcons1()
-                tcons1i_copy.tcons0 = Tcons0()
-                texpr0_copy = libapron.ap_texpr0_copy(tcons1s[i].tcons0.texpr0)
-                tcons1i_copy.tcons0.texpr0 = texpr0_copy
-                tcons1i_copy.tcons0.constyp = c_uint(tcons1s[i].tcons0.constyp)
-                scalar = tcons1s[i].tcons0.scalar
-                if scalar:
-                    tcons1i_copy.tcons0.scalar = libapron.ap_scalar_alloc_set(scalar)
-                else:
-                    tcons1i_copy.tcons0.scalar = None
-                tcons1s[i].env.contents.count += 1
-                tcons1i_copy.env = tcons1s[i].env
-                libapron.ap_tcons1_array_set(self, i, byref(tcons1i_copy))
+                libapron.ap_tcons1_array_set(self, i, deepcopy(tcons1s[i].tcons1))
         else:
             self.tcons1array = libapron.ap_tcons1_array_make(environment, 0)
 
