@@ -68,6 +68,7 @@ class PyInterval(metaclass=ABCMeta):
 
     def __del__(self):
         libapron.ap_interval_free(self)
+        del self.interval
 
     @property
     def _as_parameter_(self):

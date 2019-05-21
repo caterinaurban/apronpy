@@ -74,7 +74,7 @@ class Texpr1(Structure):
 
 class PyTexpr1:
 
-    def __init__(self, expr: Union[Texpr1, PyLinexpr1]):
+    def __init__(self, expr: Union[POINTER(Texpr1), PyLinexpr1]):
         if isinstance(expr, PyLinexpr1):
             self.texpr1: POINTER(Texpr1) = libapron.ap_texpr1_from_linexpr1(expr)
         else:
@@ -90,6 +90,7 @@ class PyTexpr1:
 
     def __del__(self):
         libapron.ap_texpr1_free(self)
+        del self.texpr1
 
     @classmethod
     def cst(cls, environment: PyEnvironment, cst: PyCoeff):
@@ -122,9 +123,7 @@ class PyTexpr1:
         return '{}'.format(self.texpr1.contents)
 
     def substitute(self, var: PyVar, dst: 'PyTexpr1'):
-        texpr = type(self)(PyLinexpr1(PyEnvironment()))
-        texpr.texpr1 = libapron.ap_texpr1_substitute(self, var._as_parameter_, dst)
-        return texpr
+        return type(self)(libapron.ap_texpr1_substitute(self, var._as_parameter_, dst))
 
 
 libapron.ap_texpr1_cst.argtypes = [PyEnvironment, PyCoeff]

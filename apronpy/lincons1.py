@@ -128,6 +128,7 @@ class PyLincons1:
 
     def __del__(self):
         libapron.ap_lincons1_clear(self)
+        del self.lincons1
 
     @property
     def _as_parameter_(self):
@@ -228,6 +229,7 @@ class PyLincons1Array:
 
     def __del__(self):
         libapron.ap_lincons1_array_clear(self)
+        del self.lincons1array
 
     @property
     def _as_parameter_(self):

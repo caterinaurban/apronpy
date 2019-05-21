@@ -5,7 +5,7 @@ GMP Multi-Precision Rationals
 :Author: Caterina Urban
 """
 from _ctypes import Structure, byref, POINTER
-from ctypes import c_int, c_char_p, c_long, c_ulong, c_double
+from ctypes import c_int, c_char_p, c_double, c_longlong, c_ulonglong
 from typing import Union
 
 from apronpy.cdll import libgmp
@@ -59,7 +59,7 @@ class PyMPQ:
             MPQ_set_d(self, value_or_numerator)
         else:
             assert isinstance(value_or_numerator, int) and isinstance(denominator, int)
-            MPQ_set_si(self, c_long(value_or_numerator), c_ulong(denominator))
+            MPQ_set_si(self, c_longlong(value_or_numerator), c_ulonglong(denominator))
             MPQ_canonicalize(self)
 
     def __deepcopy__(self, memodict=None):
@@ -71,6 +71,7 @@ class PyMPQ:
 
     def __del__(self):
         MPQ_clear(self)
+        del self.mpq
 
     @property
     def _as_parameter_(self):
@@ -143,7 +144,7 @@ MPQ_init.argtypes = [PyMPQ]
 MPQ_clear.argtypes = [PyMPQ]
 # assignment functions
 MPQ_set.argtypes = [PyMPQ, POINTER(MPQ)]
-MPQ_set_si.argtypes = [PyMPQ, c_long, c_ulong]
+MPQ_set_si.argtypes = [PyMPQ, c_longlong, c_ulonglong]
 MPQ_set_d.argtypes = [PyMPQ, c_double]
 # conversion functions
 MPQ_get_str.argtypes = [c_char_p, c_int, POINTER(MPQ)]

@@ -103,6 +103,7 @@ class PyScalar(metaclass=ABCMeta):
 
     def __del__(self):
         libapron.ap_scalar_free(self)
+        del self.scalar
 
     @property
     def _as_parameter_(self):

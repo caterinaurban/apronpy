@@ -211,6 +211,7 @@ class PyTcons1:
 
     def __del__(self):
         libapron.ap_tcons1_clear(self)
+        del self.tcons1
 
     @property
     def _as_parameter_(self):
@@ -241,6 +242,7 @@ class PyTcons1Array:
 
     def __del__(self):
         libapron.ap_tcons1_array_clear(self)
+        del self.tcons1array
 
     @property
     def _as_parameter_(self):

@@ -6,7 +6,7 @@ APRON Environments
 """
 from _ctypes import Structure, POINTER, byref
 from ctypes import c_size_t, c_char_p
-from typing import List, Type
+from typing import List, Type, Union
 
 from apronpy.cdll import libapron
 from apronpy.dimension import Dim, AP_DIM_MAX, DimChange, DimPerm
@@ -71,24 +71,29 @@ class Environment(Structure):
 class PyEnvironment:
 
     # noinspection PyTypeChecker
-    def __init__(self, int_vars: List[PyVar] = None, real_vars: List[PyVar] = None):
-        if int_vars:
-            int_size = len(int_vars)
-            typ: Type = c_char_p * int_size
-            int_arr = typ(*(x._as_parameter_ for x in int_vars))
+    def __init__(self, environment_or_int_vars: Union[POINTER(Environment), List[PyVar]] = None,
+                 real_vars: List[PyVar] = None):
+        if isinstance(environment_or_int_vars, POINTER(Environment)):
+            self.environment = environment_or_int_vars
         else:
-            int_size = 0
-            int_arr = None
-        if real_vars:
-            real_size = len(real_vars)
-            typ: Type = c_char_p * real_size
-            real_arr = typ(*(x._as_parameter_ for x in real_vars))
-        else:
-            real_size = 0
-            real_arr = None
-        self.environment = libapron.ap_environment_alloc(int_arr, int_size, real_arr, real_size)
-        if not self.environment:
-            raise ValueError('clashing variable names')
+            if environment_or_int_vars:
+                int_size = len(environment_or_int_vars)
+                typ: Type = c_char_p * int_size
+                int_arr = typ(*(x._as_parameter_ for x in environment_or_int_vars))
+            else:
+                int_size = 0
+                int_arr = None
+            if real_vars:
+                real_size = len(real_vars)
+                typ: Type = c_char_p * real_size
+                real_arr = typ(*(x._as_parameter_ for x in real_vars))
+            else:
+                real_size = 0
+                real_arr = None
+            environment = libapron.ap_environment_alloc(int_arr, int_size, real_arr, real_size)
+            self.environment = environment
+            if not self.environment:
+                raise ValueError('clashing variable names')
 
     def __deepcopy__(self, memodict=None):
         if memodict is None:
@@ -108,6 +113,7 @@ class PyEnvironment:
         if self.environment:
             if self.environment.contents.count <= 1:
                 libapron.ap_environment_free2(self)
+                del self.environment
             else:
                 self.environment.contents.count -= 1
 
@@ -208,11 +214,10 @@ class PyEnvironment:
         assert isinstance(other, PyEnvironment)
         d1 = DimChange()
         d2 = DimChange()
-        environment = PyEnvironment()
-        environment.environment = libapron.ap_environment_lce(self, other, byref(d1), byref(d2))
-        if not environment.environment:
+        environment = libapron.ap_environment_lce(self, other, byref(d1), byref(d2))
+        if not environment:
             raise ValueError('incompatible environments')
-        return environment
+        return PyEnvironment(environment)
 
     def union(self, other: 'PyEnvironment') -> 'PyEnvironment':
         assert isinstance(other, PyEnvironment)

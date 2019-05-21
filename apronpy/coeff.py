@@ -73,14 +73,15 @@ class Coeff(Structure):
 class PyCoeff(metaclass=ABCMeta):
 
     def __init__(self, value, discr: CoeffDiscr = CoeffDiscr.AP_COEFF_SCALAR):
-        self.coeff = libapron.ap_coeff_alloc(discr)
         if isinstance(value, Coeff):
             self.coeff = byref(value)
-        elif discr == CoeffDiscr.AP_COEFF_INTERVAL:
-            libapron.ap_coeff_set_interval(self, value)
         else:
-            assert discr == CoeffDiscr.AP_COEFF_SCALAR
-            libapron.ap_coeff_set_scalar(self, value)
+            self.coeff = libapron.ap_coeff_alloc(discr)
+            if discr == CoeffDiscr.AP_COEFF_INTERVAL:
+                libapron.ap_coeff_set_interval(self, value)
+            else:
+                assert discr == CoeffDiscr.AP_COEFF_SCALAR
+                libapron.ap_coeff_set_scalar(self, value)
 
     def __deepcopy__(self, memodict=None):
         if memodict is None:
@@ -91,6 +92,7 @@ class PyCoeff(metaclass=ABCMeta):
 
     def __del__(self):
         libapron.ap_coeff_free(self)
+        del self.coeff
 
     @property
     def _as_parameter_(self):

@@ -64,6 +64,7 @@ class PyMPZ:
 
     def __del__(self):
         MPZ_clear(self)
+        del self.mpz
 
     @property
     def _as_parameter_(self):

@@ -98,6 +98,7 @@ class PyAbstract1(metaclass=ABCMeta):
 
     def __del__(self):
         libapron.ap_abstract1_clear(self.manager, self)
+        del self.abstract1
 
     @property
     def _as_parameter_(self):
@@ -113,9 +114,7 @@ class PyAbstract1(metaclass=ABCMeta):
 
     @property
     def environment(self) -> 'PyEnvironment':
-        environment = PyEnvironment()
-        environment.environment = libapron.ap_abstract1_environment(self.manager, self)
-        return environment
+        return PyEnvironment(libapron.ap_abstract1_environment(self.manager, self))
 
     def is_bottom(self):
         return bool(libapron.ap_abstract1_is_bottom(self.manager, self))

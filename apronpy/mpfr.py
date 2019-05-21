@@ -91,6 +91,8 @@ class PyMPFR:
         
     def __del__(self):
         MPFR_clear(self)
+        del self.mpfr
+        del self.rounding
 
     @property
     def _as_parameter_(self):

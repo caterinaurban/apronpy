@@ -79,6 +79,7 @@ class PyLinexpr1:
 
     def __del__(self):
         libapron.ap_linexpr1_clear(self)
+        del self.linexpr1
 
     @property
     def _as_parameter_(self):
