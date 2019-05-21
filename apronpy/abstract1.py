@@ -110,7 +110,8 @@ class PyAbstract1(metaclass=ABCMeta):
         return argument
 
     def __repr__(self):
-        return '{}'.format(libapron.ap_abstract1_to_lincons_array(self.manager, self))
+        array = PyLincons1Array(libapron.ap_abstract1_to_lincons_array(self.manager, self))
+        return '{}'.format(array)
 
     @property
     def environment(self) -> 'PyEnvironment':

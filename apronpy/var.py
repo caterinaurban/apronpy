@@ -4,8 +4,8 @@ APRON (String) Variables
 
 :Author: Caterina Urban
 """
-from _ctypes import Structure
-from ctypes import CFUNCTYPE, c_int, c_char_p, c_void_p
+from _ctypes import Structure, byref
+from ctypes import CFUNCTYPE, c_int, c_char_p, c_void_p, cast
 
 from apronpy.cdll import libapron
 
@@ -38,9 +38,7 @@ class PyVar:
     def __deepcopy__(self, memodict=None):
         if memodict is None:
             memodict = {}
-        result = PyVar('')
-        operations = VarOperations.in_dll(libapron, 'ap_var_operations_default')
-        operations.compare(result, self)
+        result = PyVar(self.var)
         memodict[id(self)] = result
         return result
 

@@ -152,7 +152,7 @@ class PyLinexpr1:
                 result = PyMPFRScalarCoeff(0)
             else:  # coeff.contents.val.scalar.contents.discr == ScalarDiscr.AP_SCALAR_DOUBLE
                 result = PyDoubleScalarCoeff()
-        libapron.ap_linexpr1_get_coeff(result.coeff, self, var._as_parameter_)
+        libapron.ap_linexpr1_get_coeff(result, self, var._as_parameter_)
         return result
 
     def set_coeff(self, var: PyVar, coeff: PyCoeff):
@@ -166,4 +166,4 @@ libapron.ap_linexpr1_copy.restype = Linexpr1
 libapron.ap_linexpr1_clear.argtypes = [PyLinexpr1]
 libapron.ap_linexpr1_coeffref.argtypes = [PyLinexpr1, c_char_p]
 libapron.ap_linexpr1_coeffref.restype = POINTER(Coeff)
-libapron.ap_linexpr1_get_coeff.argtypes = [POINTER(Coeff), PyLinexpr1, c_char_p]
+libapron.ap_linexpr1_get_coeff.argtypes = [PyCoeff, PyLinexpr1, c_char_p]

@@ -7,7 +7,7 @@ APRON Linear Constraints (Level 1)
 from _ctypes import Structure, POINTER, byref
 from copy import deepcopy
 from ctypes import c_char_p, c_size_t
-from typing import List
+from typing import List, Union
 
 from apronpy.cdll import libapron
 from apronpy.coeff import PyDoubleScalarCoeff, CoeffDiscr, PyMPQIntervalCoeff, \
@@ -33,6 +33,22 @@ class Lincons1(Structure):
         ('lincons0', Lincons0),
         ('env', POINTER(Environment))
     ]
+
+    def __deepcopy__(self, memodict=None):
+        if memodict is None:
+            memodict = {}
+        result = Lincons1()
+        result.lincons0 = Lincons0()
+        result.lincons0.linexpr0 = libapron.ap_linexpr0_copy(self.lincons0.linexpr0)
+        result.lincons0.constyp = self.lincons0.constyp
+        if self.lincons0.scalar:
+            self.lincons0.scalar = libapron.ap_scalar_alloc_set(self.lincons0.scalar)
+        else:
+            result.lincons0.scalar = None
+        self.env.contents.count += 1
+        result.env = self.env
+        memodict[id(self)] = result
+        return result
 
     def __repr__(self):
         linexpr0 = self.lincons0.linexpr0.contents
@@ -104,7 +120,6 @@ class Lincons1Array(Structure):
                 array.append('{} {} {}'.format(result, repr(constyp), scalar.contents))
             else:
                 array.append('{} {} 0'.format(result.replace('+ -', '- '), repr(constyp)))
-
         return ' ∧ '.join(array)
 
 
@@ -205,25 +220,15 @@ libapron.ap_lincons1_get_coeff.argtypes = [POINTER(Coeff), PyLincons1, c_char_p]
 
 class PyLincons1Array:
 
-    def __init__(self, lincons1s: List[PyLincons1] = None, environment: PyEnvironment = None):
-        if lincons1s:
+    def __init__(self, lincons1s: Union[Lincons1Array, List[PyLincons1]] = None,
+                 environment: PyEnvironment = None):
+        if isinstance(lincons1s, Lincons1Array):
+            self.lincons1array = lincons1s
+        elif lincons1s:
             size = len(lincons1s)
-            lincons1s[0].lincons1.env.contents.count += 1
             self.lincons1array = libapron.ap_lincons1_array_make(lincons1s[0].lincons1.env, size)
             for i in range(size):
-                lincons1i_copy = Lincons1()
-                lincons1i_copy.lincons0 = Lincons0()
-                linexpr0_copy = libapron.ap_linexpr0_copy(lincons1s[i].lincons1.lincons0.linexpr0)
-                lincons1i_copy.lincons0.linexpr0 = linexpr0_copy
-                lincons1i_copy.lincons0.constyp = c_uint(lincons1s[i].lincons1.lincons0.constyp)
-                scalar = lincons1s[i].lincons1.lincons0.scalar
-                if scalar:
-                    lincons1i_copy.lincons0.scalar = libapron.ap_scalar_alloc_set(scalar)
-                else:
-                    lincons1i_copy.lincons0.scalar = None
-                lincons1s[i].lincons1.env.contents.count += 1
-                lincons1i_copy.env = lincons1s[i].lincons1.env
-                libapron.ap_lincons1_array_set(self, i, byref(lincons1i_copy))
+                libapron.ap_lincons1_array_set(self, i, deepcopy(lincons1s[i].lincons1))
         else:
             self.lincons1array = libapron.ap_lincons1_array_make(environment, 0)
 

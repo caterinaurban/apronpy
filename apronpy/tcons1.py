@@ -197,10 +197,8 @@ class PyTcons1:
 
     @classmethod
     def unsat(cls, environment: PyEnvironment):
-        x = PyLinexpr1(environment)
-        x.set_cst(PyDoubleScalarCoeff(-1.0))
-        lincons = PyLincons1(ConsTyp.AP_CONS_SUPEQ, x)
-        return cls(lincons)
+        x = PyTexpr1.cst(environment, PyDoubleScalarCoeff(-1.0))
+        return cls.make(x, ConsTyp.AP_CONS_SUPEQ)
 
     def __deepcopy__(self, memodict=None):
         if memodict is None:
@@ -231,8 +229,11 @@ libapron.ap_tcons1_clear.argtypes = [PyTcons1]
 
 class PyTcons1Array:
 
-    def __init__(self, tcons1s: List[PyTcons1] = None, environment: PyEnvironment = None):
-        if tcons1s:
+    def __init__(self, tcons1s: Union[TCons1Array, List[PyTcons1]] = None,
+                 environment: PyEnvironment = None):
+        if isinstance(tcons1s, TCons1Array):
+            self.tcons1array = tcons1s
+        elif tcons1s:
             size = len(tcons1s)
             self.tcons1array = libapron.ap_tcons1_array_make(tcons1s[0].tcons1.env, size)
             for i in range(size):
