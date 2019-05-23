@@ -5,7 +5,7 @@ GMP Multi-Precision Integers
 :Author: Caterina Urban
 """
 from _ctypes import Structure, POINTER, byref
-from ctypes import c_int, c_ulonglong, c_double, c_char_p
+from ctypes import c_int, c_ulonglong, c_double, c_char_p, c_size_t, create_string_buffer, c_char
 from typing import Union
 
 from apronpy.cdll import libgmp
@@ -24,6 +24,7 @@ MPZ_sub = libgmp.__gmpz_sub
 MPZ_mul = libgmp.__gmpz_mul
 MPZ_neg = libgmp.__gmpz_neg
 MPZ_abs = libgmp.__gmpz_abs
+MPZ_sizeinbase = libgmp.__gmpz_sizeinbase
 
 
 class MPZ(Structure):
@@ -42,7 +43,8 @@ class MPZ(Structure):
     ]
 
     def __repr__(self):
-        return MPZ_get_str(None, 10, self).decode('utf-8')
+        buffer = create_string_buffer(MPZ_sizeinbase(self, 10) + 2)
+        return MPZ_get_str(buffer, 10, self).decode('utf-8')
 
 
 class PyMPZ:
@@ -76,7 +78,8 @@ class PyMPZ:
         return argument
 
     def __repr__(self):
-        return MPZ_get_str(None, 10, self.mpz).decode('utf-8')
+        buffer = create_string_buffer(MPZ_sizeinbase(self, 10) + 2)
+        return MPZ_get_str(buffer, 10, self.mpz).decode('utf-8')
 
     def __lt__(self, other: 'PyMPZ'):
         assert isinstance(other, PyMPZ)
@@ -136,7 +139,7 @@ MPZ_clear.argtypes = [PyMPZ]
 MPZ_init_set.argtypes = [PyMPZ, POINTER(MPZ)]
 MPZ_init_set_d.argtypes = [PyMPZ, c_double]
 # conversion functions
-MPZ_get_str.argtypes = [c_char_p, c_int, POINTER(MPZ)]
+MPZ_get_str.argtypes = [POINTER(c_char), c_int, POINTER(MPZ)]
 MPZ_get_str.restype = c_char_p
 # comparison functions
 MPZ_cmp.argtypes = [PyMPZ, PyMPZ]
@@ -146,3 +149,5 @@ MPZ_sub.argtypes = [PyMPZ, PyMPZ, PyMPZ]
 MPZ_mul.argtypes = [PyMPZ, PyMPZ, PyMPZ]
 MPZ_neg.argtypes = [PyMPZ, PyMPZ]
 MPZ_abs.argtypes = [PyMPZ, PyMPZ]
+MPZ_sizeinbase.argtypes = [POINTER(MPZ), c_int]
+MPZ_sizeinbase.restype = c_size_t

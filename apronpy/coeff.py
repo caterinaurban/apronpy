@@ -66,7 +66,8 @@ class Coeff(Structure):
     def __repr__(self):
         if self.discr == CoeffDiscr.AP_COEFF_INTERVAL:
             return '{}'.format(self.val.interval.contents)
-        else:  # self.discr == CoefficientDiscr.AP_COEFF_SCALAR
+        else:
+            assert self.discr == CoeffDiscr.AP_COEFF_SCALAR
             return '{}'.format(self.val.scalar.contents)
 
 
@@ -104,7 +105,7 @@ class PyCoeff(metaclass=ABCMeta):
         return argument
 
     def __repr__(self):
-        return str(self.coeff.contents)
+        return '{}'.format(self.coeff.contents)
 
     def __lt__(self, other: 'PyCoeff'):
         assert isinstance(other, PyCoeff)

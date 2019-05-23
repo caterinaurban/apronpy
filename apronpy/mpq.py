@@ -5,11 +5,11 @@ GMP Multi-Precision Rationals
 :Author: Caterina Urban
 """
 from _ctypes import Structure, byref, POINTER
-from ctypes import c_int, c_char_p, c_double, c_longlong, c_ulonglong
+from ctypes import c_int, c_char_p, c_double, c_longlong, c_ulonglong, c_char, create_string_buffer
 from typing import Union
 
 from apronpy.cdll import libgmp
-from apronpy.mpz import MPZ
+from apronpy.mpz import MPZ, MPZ_sizeinbase
 
 MPQ_canonicalize = libgmp.__gmpq_canonicalize
 # initialization functions
@@ -45,7 +45,10 @@ class MPQ(Structure):
     ]
 
     def __repr__(self):
-        return MPQ_get_str(None, 10, self).decode("utf-8")
+        n = MPZ_sizeinbase(self._mp_num, 10)
+        d = MPZ_sizeinbase(self._mp_den, 10)
+        buffer = create_string_buffer(n + d + 3)
+        return MPQ_get_str(buffer, 10, self).decode('utf-8')
 
 
 class PyMPQ:
@@ -83,7 +86,10 @@ class PyMPQ:
         return argument
 
     def __repr__(self):
-        return MPQ_get_str(None, 10, self.mpq).decode("utf-8")
+        n = MPZ_sizeinbase(self.mpq._mp_num, 10)
+        d = MPZ_sizeinbase(self.mpq._mp_den, 10)
+        buffer = create_string_buffer(n + d + 3)
+        return MPQ_get_str(buffer, 10, self).decode('utf-8')
 
     def __lt__(self, other: 'PyMPQ'):
         assert isinstance(other, PyMPQ)
@@ -147,7 +153,7 @@ MPQ_set.argtypes = [PyMPQ, POINTER(MPQ)]
 MPQ_set_si.argtypes = [PyMPQ, c_longlong, c_ulonglong]
 MPQ_set_d.argtypes = [PyMPQ, c_double]
 # conversion functions
-MPQ_get_str.argtypes = [c_char_p, c_int, POINTER(MPQ)]
+MPQ_get_str.argtypes = [POINTER(c_char), c_int, POINTER(MPQ)]
 MPQ_get_str.restype = c_char_p
 # comparison functions
 MPQ_cmp.argtypes = [PyMPQ, PyMPQ]

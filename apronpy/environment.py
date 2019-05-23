@@ -40,23 +40,6 @@ class Environment(Structure):
         ('count', c_size_t)
     ]
 
-    def __copy__(self):
-        self.count += 1
-        return self
-
-    def __deepcopy__(self, memodict=None):
-        if memodict is None:
-            memodict = {}
-        int_vars = list()
-        for i in range(self.intdim):
-            int_vars.append(PyVar(self.var_of_dim[i].decode('utf-8')))
-        real_vars = list()
-        for i in range(self.realdim):
-            real_vars.append(PyVar(self.var_of_dim[self.intdim+i].decode('utf-8')))
-        result = PyEnvironment(int_vars, real_vars)
-        memodict[id(self)] = result
-        return result
-
     def __repr__(self):
         result = '{'
         result += ','.join(self.var_of_dim[i].decode('utf-8') for i in range(self.intdim))

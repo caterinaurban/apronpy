@@ -55,14 +55,14 @@ class Texpr1(Structure):
                 prec = precendence(texpr0)
                 prec_a = precendence(texpr0.val.node.contents.exprA.contents)
                 if prec_a < prec:
-                    expr_a = '(' + do(texpr0.val.node.contents.exprA.contents, env) + ')'
+                    expr_a = '({})'.format(do(texpr0.val.node.contents.exprA.contents, env))
                 else:
                     expr_a = do(texpr0.val.node.contents.exprA.contents, env)
                 op = texpr0.val.node.contents.op
                 if texpr0.val.node.contents.exprB:  # binary operation
                     prec_b = precendence(texpr0.val.node.contents.exprB.contents)
                     if prec_b <= prec:
-                        expr_b = '(' + do(texpr0.val.node.contents.exprB.contents, env) + ')'
+                        expr_b = '({})'.format(do(texpr0.val.node.contents.exprB.contents, env))
                     else:
                         expr_b = do(texpr0.val.node.contents.exprB.contents, env)
                     return '{} {} {}'.format(expr_a, repr(TexprOp(op)), expr_b)
