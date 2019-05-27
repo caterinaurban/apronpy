@@ -81,16 +81,9 @@ class PyEnvironment:
     def __deepcopy__(self, memodict=None):
         if memodict is None:
             memodict = {}
-        var_of_dim = self.environment.contents.var_of_dim
-        int_vars = list()
-        for i in range(self.environment.contents.intdim):
-            int_vars.append(PyVar(var_of_dim[i].decode('utf-8')))
-        real_vars = list()
-        for i in range(self.environment.contents.realdim):
-            real_vars.append(PyVar(var_of_dim[self.environment.contents.intdim+i].decode('utf-8')))
-        result = PyEnvironment(int_vars, real_vars)
-        memodict[id(self)] = result
-        return result
+        self.environment.contents.count += 1
+        memodict[id(self)] = self
+        return self
 
     def __del__(self):
         if self.environment:

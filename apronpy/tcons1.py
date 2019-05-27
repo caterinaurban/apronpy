@@ -14,7 +14,6 @@ from apronpy.coeff import PyDoubleScalarCoeff
 from apronpy.environment import Environment, PyEnvironment
 from apronpy.lincons0 import ConsTyp
 from apronpy.lincons1 import PyLincons1
-from apronpy.linexpr1 import PyLinexpr1
 from apronpy.scalar import c_uint, PyScalar
 from apronpy.tcons0 import Tcons0, Tcons0Array
 from apronpy.texpr0 import TexprOp, TexprDiscr

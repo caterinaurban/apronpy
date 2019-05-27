@@ -85,6 +85,7 @@ class PyMPQ:
         assert isinstance(argument, PyMPQ)
         return argument
 
+    # noinspection PyProtectedMember
     def __repr__(self):
         n = MPZ_sizeinbase(self.mpq._mp_num, 10)
         d = MPZ_sizeinbase(self.mpq._mp_den, 10)

@@ -25,7 +25,7 @@ class TestPyEnvironment(unittest.TestCase):
         e0 = PyEnvironment([PyVar('x')], [PyVar('y'), PyVar('z')])
         e1 = deepcopy(e0)
         e2 = e0
-        self.assertNotEqual(id(e0), id(e1))
+        self.assertEqual(id(e0), id(e1))
         self.assertEqual(id(e0), id(e2))
 
     def test_len(self):

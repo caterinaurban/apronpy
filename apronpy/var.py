@@ -4,8 +4,8 @@ APRON (String) Variables
 
 :Author: Caterina Urban
 """
-from _ctypes import Structure, byref
-from ctypes import CFUNCTYPE, c_int, c_char_p, c_void_p, cast
+from _ctypes import Structure
+from ctypes import CFUNCTYPE, c_int, c_char_p, c_void_p
 
 from apronpy.cdll import libapron
 
