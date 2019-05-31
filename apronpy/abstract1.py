@@ -17,7 +17,7 @@ from apronpy.cdll import libapron
 from apronpy.environment import Environment, PyEnvironment
 from apronpy.interval import Interval, PyInterval
 from apronpy.manager import Manager
-from apronpy.tcons1 import PyTcons1Array
+from apronpy.tcons1 import PyTcons1Array, TCons1Array
 from apronpy.texpr1 import PyTexpr1, Texpr1
 from apronpy.var import PyVar
 
@@ -109,12 +109,20 @@ class PyAbstract1(metaclass=ABCMeta):
         assert isinstance(argument, PyAbstract1)
         return argument
 
+    @property
+    def to_lincons(self) -> PyLincons1Array:
+        return PyLincons1Array(libapron.ap_abstract1_to_lincons_array(self.manager, self))
+
+    @property
+    def to_tcons(self) -> PyTcons1Array:
+        return PyTcons1Array(libapron.ap_abstract1_to_tcons_array(self.manager, self))
+
     def __repr__(self):
         array = PyLincons1Array(libapron.ap_abstract1_to_lincons_array(self.manager, self))
         return '{}'.format(array)
 
     @property
-    def environment(self) -> 'PyEnvironment':
+    def environment(self) -> PyEnvironment:
         return PyEnvironment(libapron.ap_abstract1_environment(self.manager, self))
 
     def is_bottom(self):
@@ -231,6 +239,8 @@ libapron.ap_abstract1_is_leq.argtypes = [man_p, pya1, pya1]
 libapron.ap_abstract1_is_eq.argtypes = [man_p, pya1, pya1]
 libapron.ap_abstract1_to_lincons_array.argtypes = [man_p, pya1]
 libapron.ap_abstract1_to_lincons_array.restype = Lincons1Array
+libapron.ap_abstract1_to_tcons_array.argtypes = [man_p, pya1]
+libapron.ap_abstract1_to_tcons_array.restype = TCons1Array
 libapron.ap_abstract1_meet.argtypes = [man_p, c_bool, pya1, pya1]
 libapron.ap_abstract1_meet.restype = Abstract1
 libapron.ap_abstract1_meet_lincons_array.argtypes = [man_p, c_bool, pya1, PyLincons1Array]

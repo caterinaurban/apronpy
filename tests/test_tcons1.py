@@ -9,7 +9,7 @@ from copy import deepcopy
 
 from apronpy.texpr1 import PyTexpr1
 
-from apronpy.coeff import PyDoubleScalarCoeff
+from apronpy.coeff import PyDoubleScalarCoeff, PyMPQScalarCoeff
 from apronpy.environment import PyEnvironment
 from apronpy.lincons0 import ConsTyp
 from apronpy.lincons1 import PyLincons1
@@ -52,6 +52,22 @@ class TestPyTcons1(unittest.TestCase):
         c2 = c0
         self.assertNotEqual(id(c0), id(c1))
         self.assertEqual(id(c0), id(c2))
+
+    def test_substitute(self):
+        e = PyEnvironment([PyVar('x0'), PyVar('y')], [PyVar('z')])
+        x0 = PyLinexpr1(e)
+        x0.set_coeff(PyVar('x0'), PyMPQScalarCoeff(1))
+        x0.set_cst(PyMPQScalarCoeff(3))
+        t0 = PyTexpr1(x0)
+        c0 = PyTcons1.make(t0, ConsTyp.AP_CONS_SUPEQ)
+        self.assertEqual(str(c0), '3 + 1 · x0 >= 0')
+        x1 = PyLinexpr1(e)
+        x1.set_coeff(PyVar('x0'), PyMPQScalarCoeff(1))
+        x1.set_cst(PyMPQScalarCoeff(-1))
+        t1 = PyTexpr1(x1)
+        c1 = PyTcons1.make(t1, ConsTyp.AP_CONS_SUPEQ)
+        self.assertEqual(str(c1), '-1 + 1 · x0 >= 0')
+        self.assertEqual(str(c0.substitute(PyVar('x0'), t1)), '3 + 1 · (-1 + 1 · x0) >= 0')
 
 
 if __name__ == '__main__':

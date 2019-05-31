@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='apronpy',
-    version='0.8.1',
+    version='0.8.2',
     author='Caterina Urban',
     author_email='caterina.urban@gmail.com',
     description='Python Interface for the APRON Numerical Abstract Domain Library',

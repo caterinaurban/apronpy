@@ -67,7 +67,7 @@ class Lincons1(Structure):
             for i in range(linexpr0.size):
                 coeff = linexpr0.p.linterm[i].coeff
                 dim = linexpr0.p.linterm[i].dim.value
-                if dim < linexpr0.size:
+                if dim <= linexpr0.size:
                     terms.append('{}·{}'.format(coeff, env.var_of_dim[dim].decode('utf-8')))
             result += ' + '.join(terms)
             result += ' + {}'.format(linexpr0.cst) if result else '{}'.format(linexpr0.cst)
@@ -111,7 +111,7 @@ class Lincons1Array(Structure):
                 for j in range(linexpr0.size):
                     coeff = linexpr0.p.linterm[j].coeff
                     dim = linexpr0.p.linterm[j].dim.value
-                    if dim < linexpr0.size:
+                    if dim <= linexpr0.size:
                         terms.append('{}·{}'.format(coeff, env.var_of_dim[dim].decode('utf-8')))
                 result += ' + '.join(terms)
                 result += ' + {}'.format(linexpr0.cst) if result else '{}'.format(linexpr0.cst)

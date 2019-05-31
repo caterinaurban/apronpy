@@ -18,6 +18,7 @@ from apronpy.scalar import c_uint, PyScalar
 from apronpy.tcons0 import Tcons0, Tcons0Array
 from apronpy.texpr0 import TexprOp, TexprDiscr
 from apronpy.texpr1 import PyTexpr1
+from apronpy.var import PyVar
 
 
 class Tcons1(Structure):
@@ -221,6 +222,13 @@ class PyTcons1:
 
     def __repr__(self):
         return '{}'.format(self.tcons1)
+
+    def substitute(self, var: PyVar, dst: PyTexpr1):
+        self.tcons1.env.contents.count += 1
+        dim = libapron.ap_environment_dim_of_var(PyEnvironment(self.tcons1.env), var)
+        texpr0 = self.tcons1.tcons0.texpr0
+        libapron.ap_texpr0_substitute_with(texpr0, dim, dst.texpr1.contents.texpr0)
+        return self
 
 
 libapron.ap_tcons1_clear.argtypes = [PyTcons1]

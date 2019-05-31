@@ -167,5 +167,9 @@ Texpr0Node._fields_ = [
 
 libapron.ap_texpr0_copy.argtypes = [POINTER(Texpr0)]
 libapron.ap_texpr0_copy.restype = POINTER(Texpr0)
+libapron.ap_texpr0_free.argtypes = [POINTER(Texpr0)]
 libapron.ap_texpr0_from_linexpr0.argtypes = [POINTER(Linexpr0)]
 libapron.ap_texpr0_from_linexpr0.restype = POINTER(Texpr0)
+libapron.ap_texpr0_substitute.argtypes = [POINTER(Texpr0), Dim, POINTER(Texpr0)]
+libapron.ap_texpr0_substitute.restype = POINTER(Texpr0)
+libapron.ap_texpr0_substitute_with.argtypes = [POINTER(Texpr0), Dim, POINTER(Texpr0)]
