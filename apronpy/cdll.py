@@ -9,19 +9,19 @@ from ctypes import util, CDLL, c_void_p
 libc = CDLL(util.find_library('c'))
 cstdout = c_void_p.in_dll(libc, '__stdoutp')
 
-libboxD = CDLL(util.find_library('libboxD.so'))
-libboxMPQ = CDLL(util.find_library('libboxMPQ.so'))
-libboxMPFR = CDLL(util.find_library('libboxMPFR.so'))
-
-liboctD = CDLL(util.find_library('liboctD.so'))
-liboctMPQ = CDLL(util.find_library('liboctMPQ.so'))
+libt1pD = CDLL(util.find_library('libt1pD.so'))
+libt1pMPQ = CDLL(util.find_library('libt1pMPQ.so'))
+libt1pMPFR = CDLL(util.find_library('libt1pMPFR.so'))
 
 libpolkaMPQ = CDLL(util.find_library('libpolkaMPQ.so'))
 libpolkaRll = CDLL(util.find_library('libpolkaRll.so'))
 
-libt1D = CDLL(util.find_library('libt1D.so'))
-libt1MPQ = CDLL(util.find_library('libt1MPQ.so'))
-libt1MPFR = CDLL(util.find_library('libt1MPFR.so'))
+liboctD = CDLL(util.find_library('liboctD.so'))
+liboctMPQ = CDLL(util.find_library('liboctMPQ.so'))
+
+libboxD = CDLL(util.find_library('libboxD.so'))
+libboxMPQ = CDLL(util.find_library('libboxMPQ.so'))
+libboxMPFR = CDLL(util.find_library('libboxMPFR.so'))
 
 libapron = CDLL(util.find_library('libapron.so'))
 
