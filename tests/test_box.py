@@ -134,7 +134,14 @@ class TestPyBoxMPQ(unittest.TestCase):
         b3 = PyBoxMPQ(e, variables=[PyVar('z')], intervals=[PyMPFRInterval(-2.5, 2.5)])
         self.assertFalse(b3.is_bottom())
         self.assertTrue(PyBoxMPQ.top(e).is_top())
-        
+
+    def test_forget(self):
+        e = PyEnvironment([PyVar('x0'), PyVar('y')], [PyVar('z')])
+        variables = [PyVar('x0'), PyVar('y')]
+        intervals = [PyMPQInterval(-3, 2), PyMPQInterval(-2, 2, 1, 1)]
+        b = PyBoxMPQ(e, variables=variables, intervals=intervals)
+        self.assertEqual(str(b.forget([PyVar('y')])), '1·x0 + 3 >= 0 ∧ -1·x0 + 2 >= 0')
+
 
 class TestPyBoxMPFR(unittest.TestCase):
 

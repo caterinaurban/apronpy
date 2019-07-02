@@ -248,6 +248,14 @@ class PyAbstract1(metaclass=ABCMeta):
                 a1 = APRON_substitute_texpr_array(man, False, self, v_arr, e_arr, v_size, None)
                 return type(self)(a1)
 
+    # noinspection PyTypeChecker
+    def forget(self, variables: List[PyVar]):
+        v_size = len(variables)
+        v_typ: Type = c_char_p * v_size
+        v_arr = v_typ(*(x._as_parameter_ for x in variables))
+        a1 = libapron.ap_abstract1_forget_array(self.manager, False, self, v_arr, v_size, False)
+        return type(self)(a1)
+
 
 man_p = POINTER(Manager)
 pya1 = PyAbstract1
@@ -306,3 +314,5 @@ APRON_substitute_texpr_array.argtypes = [man_p, c_bool, pya1, pyvar_p, pyt1_p, c
 APRON_substitute_texpr_array.restype = Abstract1
 libapron.ap_abstract1_substitute_texpr.argtypes = [man_p, c_bool, pya1, PyVar, PyTexpr1, pya1_p]
 libapron.ap_abstract1_substitute_texpr.restype = Abstract1
+libapron.ap_abstract1_forget_array.argtypes = [man_p, c_bool, pya1, pyvar_p, c_size_t, c_bool]
+libapron.ap_abstract1_forget_array.restype = Abstract1
