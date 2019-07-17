@@ -149,6 +149,9 @@ class PyAbstract1(metaclass=ABCMeta):
         assert isinstance(other, PyAbstract1)
         return self.__eq__(other)
 
+    def bound_variable(self, var: PyVar):
+        return PyInterval(libapron.ap_abstract1_bound_variable(self.manager, self, var))
+
     def meet(self, other: Union['PyAbstract1', PyLincons1Array, PyTcons1Array]):
         if isinstance(other, PyLincons1Array):
             abstract1 = libapron.ap_abstract1_meet_lincons_array(self.manager, False, self, other)
@@ -276,6 +279,8 @@ libapron.ap_abstract1_is_bottom.argtypes = [man_p, pya1]
 libapron.ap_abstract1_is_top.argtypes = [man_p, pya1]
 libapron.ap_abstract1_is_leq.argtypes = [man_p, pya1, pya1]
 libapron.ap_abstract1_is_eq.argtypes = [man_p, pya1, pya1]
+libapron.ap_abstract1_bound_variable.argtypes = [man_p, pya1, PyVar]
+libapron.ap_abstract1_bound_variable.restype = POINTER(Interval)
 libapron.ap_abstract1_to_lincons_array.argtypes = [man_p, pya1]
 libapron.ap_abstract1_to_lincons_array.restype = Lincons1Array
 libapron.ap_abstract1_to_tcons_array.argtypes = [man_p, pya1]

@@ -34,18 +34,21 @@ class Interval(Structure):
 class PyInterval(metaclass=ABCMeta):
 
     def __init__(self, value_or_inf, sup=None):
-        self.interval = libapron.ap_interval_alloc()
-        if isinstance(value_or_inf, Interval):
-            libapron.ap_interval_set(self, byref(value_or_inf))
-        elif isinstance(value_or_inf, c_double) and isinstance(sup, c_double):
-            libapron.ap_interval_set_double(self, value_or_inf, sup)
-        elif isinstance(value_or_inf, PyMPQ) and isinstance(sup, PyMPQ):
-            libapron.ap_interval_set_mpq(self, value_or_inf, sup)
-        elif isinstance(value_or_inf, PyMPFR) and isinstance(sup, PyMPFR):
-            libapron.ap_interval_set_mpfr(self, value_or_inf, sup)
+        if isinstance(value_or_inf, POINTER(Interval)):
+            self.interval = value_or_inf
         else:
-            assert isinstance(value_or_inf, PyScalar) and isinstance(sup, PyScalar)
-            libapron.ap_interval_set_scalar(self, value_or_inf, sup)
+            self.interval = libapron.ap_interval_alloc()
+            if isinstance(value_or_inf, Interval):
+                libapron.ap_interval_set(self, byref(value_or_inf))
+            elif isinstance(value_or_inf, c_double) and isinstance(sup, c_double):
+                libapron.ap_interval_set_double(self, value_or_inf, sup)
+            elif isinstance(value_or_inf, PyMPQ) and isinstance(sup, PyMPQ):
+                libapron.ap_interval_set_mpq(self, value_or_inf, sup)
+            elif isinstance(value_or_inf, PyMPFR) and isinstance(sup, PyMPFR):
+                libapron.ap_interval_set_mpfr(self, value_or_inf, sup)
+            else:
+                assert isinstance(value_or_inf, PyScalar) and isinstance(sup, PyScalar)
+                libapron.ap_interval_set_scalar(self, value_or_inf, sup)
 
     @classmethod
     def top(cls):
