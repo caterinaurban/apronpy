@@ -4,8 +4,12 @@ APRON Manager
 :Author: Caterina Urban
 """
 from _ctypes import Structure, POINTER
+from abc import ABCMeta
 from ctypes import c_char_p, c_void_p, CFUNCTYPE, c_size_t, c_int, c_bool, c_uint
 from enum import IntEnum
+
+from apronpy.cdll import libapron, libboxD, libboxMPQ, libboxMPFR, libpolkaMPQ, libpolkaRll, liboctD, liboctMPQ, \
+    libt1pD, libt1pMPQ, libt1pMPFR
 
 
 class FunId(IntEnum):
@@ -265,3 +269,115 @@ class Manager(Structure):
         ('internal_free', CFUNCTYPE(None, c_void_p)),
         ('count', c_size_t)
     ]
+
+
+class PyManager(metaclass=ABCMeta):
+
+    def __init__(self, manager: POINTER(Manager)):
+        self.manager = manager
+
+    def __del__(self):
+        libapron.ap_manager_free(self)
+        del self.manager
+
+    @property
+    def _as_parameter_(self):
+        return self.manager
+
+    @staticmethod
+    def from_param(argument):
+        assert isinstance(argument, PyManager)
+        return argument
+
+
+libapron.ap_manager_free.argtypes = [POINTER(Manager)]
+
+
+class PyBoxDManager(PyManager):
+
+    def __init__(self):
+        super().__init__(libboxD.box_manager_alloc())
+
+
+class PyBoxMPQManager(PyManager):
+
+    def __init__(self):
+        super().__init__(libboxMPQ.box_manager_alloc())
+
+
+class PyBoxMPFRManager(PyManager):
+
+    def __init__(self):
+        super().__init__(libboxMPFR.box_manager_alloc())
+
+
+libboxD.box_manager_alloc.restype = POINTER(Manager)
+libboxMPQ.box_manager_alloc.restype = POINTER(Manager)
+libboxMPFR.box_manager_alloc.restype = POINTER(Manager)
+
+
+class PyOctDManager(PyManager):
+
+    def __init__(self):
+        super().__init__(liboctD.oct_manager_alloc())
+
+
+class PyOctMPQManager(PyManager):
+
+    def __init__(self):
+        super().__init__(liboctMPQ.oct_manager_alloc())
+
+
+liboctD.oct_manager_alloc.restype = POINTER(Manager)
+liboctMPQ.oct_manager_alloc.restype = POINTER(Manager)
+
+
+class PyPolkaMPQlooseManager(PyManager):
+
+    def __init__(self):
+        super().__init__(libpolkaMPQ.pk_manager_alloc(False))
+
+
+class PyPolkaMPQstrictManager(PyManager):
+
+    def __init__(self):
+        super().__init__(libpolkaMPQ.pk_manager_alloc(True))
+
+
+class PyPolkaRlllooseManager(PyManager):
+
+    def __init__(self):
+        super().__init__(libpolkaRll.pk_manager_alloc(False))
+
+
+class PyPolkaRllstrictManager(PyManager):
+
+    def __init__(self):
+        super().__init__(libpolkaRll.pk_manager_alloc(True))
+
+
+libpolkaMPQ.pk_manager_alloc.restype = POINTER(Manager)
+libpolkaRll.pk_manager_alloc.restype = POINTER(Manager)
+
+
+class PyT1pDManager(PyManager):
+
+    def __init__(self):
+        super().__init__(libt1pD.t1p_manager_alloc())
+
+
+class PyT1pMPQManager(PyManager):
+
+    def __init__(self):
+        super().__init__(libt1pMPQ.t1p_manager_alloc())
+
+
+class PyT1pMPFRManager(PyManager):
+
+    def __init__(self):
+        super().__init__(libt1pMPFR.t1p_manager_alloc())
+
+
+libt1pD.t1p_manager_alloc.restype = POINTER(Manager)
+libt1pMPQ.t1p_manager_alloc.restype = POINTER(Manager)
+libt1pMPFR.t1p_manager_alloc.restype = POINTER(Manager)

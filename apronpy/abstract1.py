@@ -16,7 +16,7 @@ from apronpy.abstract0 import Abstract0
 from apronpy.cdll import libapron
 from apronpy.environment import Environment, PyEnvironment
 from apronpy.interval import Interval, PyInterval
-from apronpy.manager import Manager
+from apronpy.manager import Manager, PyManager
 from apronpy.tcons1 import PyTcons1Array, TCons1Array
 from apronpy.texpr1 import PyTexpr1, Texpr1
 from apronpy.var import PyVar
@@ -43,7 +43,7 @@ class Abstract1(Structure):
 
 class PyAbstract1(metaclass=ABCMeta):
 
-    manager: POINTER(Manager)
+    manager: PyManager
 
     # noinspection PyTypeChecker
     def __init__(self, abstract1_or_environment: Union[Abstract1, PyEnvironment],
@@ -260,7 +260,7 @@ class PyAbstract1(metaclass=ABCMeta):
         return type(self)(a1)
 
 
-man_p = POINTER(Manager)
+man_p = PyManager
 pya1 = PyAbstract1
 libapron.ap_abstract1_copy.argtypes = [man_p, pya1]
 libapron.ap_abstract1_copy.restype = Abstract1

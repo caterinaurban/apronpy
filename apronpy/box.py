@@ -8,23 +8,19 @@ from _ctypes import POINTER
 
 from apronpy.abstract1 import PyAbstract1
 from apronpy.cdll import libboxD, libboxMPQ, libboxMPFR
-from apronpy.manager import Manager
-
-libboxD.box_manager_alloc.restype = POINTER(Manager)
-libboxMPQ.box_manager_alloc.restype = POINTER(Manager)
-libboxMPFR.box_manager_alloc.restype = POINTER(Manager)
+from apronpy.manager import Manager, PyBoxDManager, PyManager, PyBoxMPQManager, PyBoxMPFRManager
 
 
 class PyBoxD(PyAbstract1):
 
-    manager: POINTER(Manager) = libboxD.box_manager_alloc()
+    manager: PyManager = PyBoxDManager()
 
 
 class PyBoxMPQ(PyAbstract1):
 
-    manager: POINTER(Manager) = libboxMPQ.box_manager_alloc()
+    manager: PyManager = PyBoxMPQManager()
 
 
 class PyBoxMPFR(PyAbstract1):
 
-    manager: POINTER(Manager) = libboxMPFR.box_manager_alloc()
+    manager: PyManager = PyBoxMPFRManager()
