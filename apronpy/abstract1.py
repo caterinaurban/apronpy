@@ -9,14 +9,13 @@ from abc import ABCMeta
 from ctypes import c_size_t, c_char_p, c_bool
 from typing import List, Type, Union
 
-from apronpy.lincons1 import Lincons1Array, PyLincons1Array
-from apronpy.linexpr1 import PyLinexpr1, Linexpr1
-
 from apronpy.abstract0 import Abstract0
 from apronpy.cdll import libapron
 from apronpy.environment import Environment, PyEnvironment
 from apronpy.interval import Interval, PyInterval
-from apronpy.manager import Manager, PyManager
+from apronpy.lincons1 import Lincons1Array, PyLincons1Array
+from apronpy.linexpr1 import PyLinexpr1, Linexpr1
+from apronpy.manager import PyManager
 from apronpy.tcons1 import PyTcons1Array, TCons1Array
 from apronpy.texpr1 import PyTexpr1, Texpr1
 from apronpy.var import PyVar
@@ -43,12 +42,12 @@ class Abstract1(Structure):
 
 class PyAbstract1(metaclass=ABCMeta):
 
-    manager: PyManager
-
     # noinspection PyTypeChecker
-    def __init__(self, abstract1_or_environment: Union[Abstract1, PyEnvironment],
+    def __init__(self, manager: PyManager,
+                 abstract1_or_environment: Union[Abstract1, PyEnvironment],
                  bottom: bool = False, array: Union[PyLincons1Array, PyTcons1Array] = None,
                  variables: List[PyVar] = None, intervals: List[PyInterval] = None):
+        self.manager = manager
         if isinstance(abstract1_or_environment, Abstract1):
             self.abstract1 = abstract1_or_environment
         elif bottom:
@@ -79,22 +78,22 @@ class PyAbstract1(metaclass=ABCMeta):
             self.abstract1 = libapron.ap_abstract1_top(self.manager, abstract1_or_environment)
 
     @classmethod
-    def bottom(cls, environment: PyEnvironment):
-        return cls(environment, bottom=True)
+    def bottom(cls, manager: PyManager, environment: PyEnvironment):
+        return cls(manager, environment, bottom=True)
 
     @classmethod
-    def from_constraints(cls, environment: PyEnvironment, array):
-        return cls(environment, array=array)
+    def from_constraints(cls, manager: PyManager, environment: PyEnvironment, array):
+        return cls(manager, environment, array=array)
 
     @classmethod
-    def top(cls, environment: PyEnvironment):
-        return cls(environment)
+    def top(cls, manager: PyManager, environment: PyEnvironment):
+        return cls(manager, environment)
 
     def __deepcopy__(self, memodict=None):
         if memodict is None:
             memodict = {}
         abstract1 = libapron.ap_abstract1_copy(self.manager, self)
-        result = type(self)(abstract1)
+        result = type(self)(self.manager, abstract1)
         memodict[id(self)] = result
         return result
 
@@ -155,22 +154,22 @@ class PyAbstract1(metaclass=ABCMeta):
     def meet(self, other: Union['PyAbstract1', PyLincons1Array, PyTcons1Array]):
         if isinstance(other, PyLincons1Array):
             abstract1 = libapron.ap_abstract1_meet_lincons_array(self.manager, False, self, other)
-            return type(self)(abstract1)
+            return type(self)(self.manager, abstract1)
         elif isinstance(other, PyTcons1Array):
             abstract1 = libapron.ap_abstract1_meet_tcons_array(self.manager, False, self, other)
-            return type(self)(abstract1)
+            return type(self)(self.manager, abstract1)
         else:
             assert isinstance(other, PyAbstract1)
             abstract1 = libapron.ap_abstract1_meet(self.manager, False, self, other)
-            return type(self)(abstract1)
+            return type(self)(self.manager, abstract1)
 
     def join(self, other: 'PyAbstract1'):
         assert isinstance(other, PyAbstract1)
-        return type(self)(libapron.ap_abstract1_join(self.manager, False, self, other))
+        return type(self)(self.manager, libapron.ap_abstract1_join(self.manager, False, self, other))
 
     def widening(self, other: 'PyAbstract1'):
         assert isinstance(other, PyAbstract1)
-        return type(self)(libapron.ap_abstract1_widening(self.manager, self, other))
+        return type(self)(self.manager, libapron.ap_abstract1_widening(self.manager, self, other))
 
     # noinspection PyTypeChecker
     def assign(self, var_or_vars: PyVar, expr_or_exprs: Union[PyLinexpr1, PyTexpr1]):
@@ -180,11 +179,11 @@ class PyAbstract1(metaclass=ABCMeta):
             expr = expr_or_exprs
             if isinstance(expr, PyLinexpr1):
                 abstract1 = libapron.ap_abstract1_assign_linexpr(man, False, self, var, expr, None)
-                return type(self)(abstract1)
+                return type(self)(self.manager, abstract1)
             else:
                 assert isinstance(expr, PyTexpr1)
                 abstract1 = libapron.ap_abstract1_assign_texpr(man, False, self, var, expr, None)
-                return type(self)(abstract1)
+                return type(self)(self.manager, abstract1)
         else:
             assert isinstance(var_or_vars, list)
             assert all(isinstance(var, PyVar) for var in var_or_vars)
@@ -198,7 +197,7 @@ class PyAbstract1(metaclass=ABCMeta):
                 e_typ: Type = Linexpr1 * e_size
                 e_arr = e_typ(*(e.linexpr1 for e in exprs))
                 a1 = APRON_assign_linexpr_array(man, False, self, v_arr, e_arr, v_size, None)
-                return type(self)(a1)
+                return type(self)(self.manager, a1)
             else:
                 assert all(isinstance(expr, PyTexpr1) for expr in exprs)
                 v_size = len(var_or_vars)
@@ -209,7 +208,7 @@ class PyAbstract1(metaclass=ABCMeta):
                 e_typ: Type = Texpr1 * e_size
                 e_arr = e_typ(*(e.texpr1.contents for e in exprs))
                 a1 = APRON_assign_texpr_array(man, False, self, v_arr, e_arr, v_size, None)
-                return type(self)(a1)
+                return type(self)(self.manager, a1)
 
     # noinspection PyTypeChecker
     def substitute(self, var_or_vars: Union[PyVar, List[PyVar]],
@@ -220,11 +219,11 @@ class PyAbstract1(metaclass=ABCMeta):
             expr = expr_or_exprs
             if isinstance(expr, PyLinexpr1):
                 a1 = libapron.ap_abstract1_substitute_linexpr(man, False, self, var, expr, None)
-                return type(self)(a1)
+                return type(self)(self.manager, a1)
             else:
                 assert isinstance(expr, PyTexpr1)
                 a1 = libapron.ap_abstract1_substitute_texpr(man, False, self, var, expr, None)
-                return type(self)(a1)
+                return type(self)(self.manager, a1)
         else:
             assert isinstance(var_or_vars, list)
             assert all(isinstance(var, PyVar) for var in var_or_vars)
@@ -238,7 +237,7 @@ class PyAbstract1(metaclass=ABCMeta):
                 e_typ: Type = Linexpr1 * e_size
                 e_arr = e_typ(*(e.linexpr1 for e in exprs))
                 a1 = APRON_substitute_linexpr_array(man, False, self, v_arr, e_arr, v_size, None)
-                return type(self)(a1)
+                return type(self)(self.manager, a1)
             else:
                 assert all(isinstance(expr, PyTexpr1) for expr in exprs)
                 v_size = len(var_or_vars)
@@ -249,7 +248,7 @@ class PyAbstract1(metaclass=ABCMeta):
                 e_typ: Type = Texpr1 * e_size
                 e_arr = e_typ(*(e.texpr1.contents for e in exprs))
                 a1 = APRON_substitute_texpr_array(man, False, self, v_arr, e_arr, v_size, None)
-                return type(self)(a1)
+                return type(self)(self.manager, a1)
 
     # noinspection PyTypeChecker
     def forget(self, variables: List[PyVar]):
@@ -257,7 +256,7 @@ class PyAbstract1(metaclass=ABCMeta):
         v_typ: Type = c_char_p * v_size
         v_arr = v_typ(*(x._as_parameter_ for x in variables))
         a1 = libapron.ap_abstract1_forget_array(self.manager, False, self, v_arr, v_size, False)
-        return type(self)(a1)
+        return type(self)(self.manager, a1)
 
 
 man_p = PyManager
