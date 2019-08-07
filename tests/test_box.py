@@ -11,6 +11,8 @@ from apronpy.box import PyBox
 from apronpy.environment import PyEnvironment
 from apronpy.interval import PyDoubleInterval, PyMPQInterval, PyMPFRInterval
 from apronpy.manager import PyManager, PyBoxDManager, PyBoxMPQManager, PyBoxMPFRManager
+from apronpy.texpr0 import TexprOp, TexprRtype, TexprRdir
+from apronpy.texpr1 import PyTexpr1
 from apronpy.var import PyVar
 
 
@@ -151,6 +153,17 @@ class TestPyMPQBox(unittest.TestCase):
         intervals = [PyMPQInterval(-3, 2), PyMPQInterval(-2, 2, 1, 1)]
         b = PyBox(man, e, variables=variables, intervals=intervals)
         self.assertEqual(str(b.bound_variable(PyVar('y'))), '[-2,2]')
+
+    def test_bound_texpr(self):
+        e = PyEnvironment([PyVar('x0'), PyVar('y')], [PyVar('z')])
+        man: PyManager = PyBoxMPQManager()
+        variables = [PyVar('x0'), PyVar('y')]
+        intervals = [PyMPQInterval(-3, 2), PyMPQInterval(-2, 2, 1, 1)]
+        b = PyBox(man, e, variables=variables, intervals=intervals)
+        x0 = PyTexpr1.var(e, PyVar('x0'))
+        x1 = PyTexpr1.var(e, PyVar('y'))
+        add = PyTexpr1.binop(TexprOp.AP_TEXPR_ADD, x0, x1, TexprRtype.AP_RTYPE_REAL, TexprRdir.AP_RDIR_RND)
+        self.assertEqual(str(b.bound_texpr(add)), '[-5,4]')
 
     def test_forget(self):
         e = PyEnvironment([PyVar('x0'), PyVar('y')], [PyVar('z')])

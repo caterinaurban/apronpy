@@ -151,6 +151,12 @@ class PyAbstract1(metaclass=ABCMeta):
     def bound_variable(self, var: PyVar):
         return PyInterval(libapron.ap_abstract1_bound_variable(self.manager, self, var))
 
+    def bound_linexpr(self, linexpr: Linexpr1):
+        return PyInterval(libapron.ap_abstract1_bound_linexpr(self.manager, self, linexpr))
+
+    def bound_texpr(self, texpr: Texpr1):
+        return PyInterval(libapron.ap_abstract1_bound_texpr(self.manager, self, texpr))
+
     def meet(self, other: Union['PyAbstract1', PyLincons1Array, PyTcons1Array]):
         if isinstance(other, PyLincons1Array):
             abstract1 = libapron.ap_abstract1_meet_lincons_array(self.manager, False, self, other)
@@ -278,6 +284,10 @@ libapron.ap_abstract1_is_bottom.argtypes = [man_p, pya1]
 libapron.ap_abstract1_is_top.argtypes = [man_p, pya1]
 libapron.ap_abstract1_is_leq.argtypes = [man_p, pya1, pya1]
 libapron.ap_abstract1_is_eq.argtypes = [man_p, pya1, pya1]
+libapron.ap_abstract1_bound_linexpr.argtypes = [man_p, pya1, PyLinexpr1]
+libapron.ap_abstract1_bound_linexpr.restype = POINTER(Interval)
+libapron.ap_abstract1_bound_texpr.argtypes = [man_p, pya1, PyTexpr1]
+libapron.ap_abstract1_bound_texpr.restype = POINTER(Interval)
 libapron.ap_abstract1_bound_variable.argtypes = [man_p, pya1, PyVar]
 libapron.ap_abstract1_bound_variable.restype = POINTER(Interval)
 libapron.ap_abstract1_to_lincons_array.argtypes = [man_p, pya1]
