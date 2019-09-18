@@ -6,7 +6,7 @@ APRON Intervals on Scalars
 """
 from _ctypes import Structure, POINTER, byref
 from abc import ABCMeta
-from ctypes import c_double, c_int
+from ctypes import c_double, c_int, c_bool
 
 from apronpy.cdll import libapron
 from apronpy.mpfr import PyMPFR, Rnd
@@ -129,7 +129,9 @@ libapron.ap_interval_set_mpq.argtypes = [PyInterval, PyMPQ, PyMPQ]
 libapron.ap_interval_set_mpfr.argtypes = [PyInterval, PyMPFR, PyMPFR]
 libapron.ap_interval_set_scalar.argtypes = [PyInterval, PyScalar, PyScalar]
 libapron.ap_interval_is_bottom.argtypes = [PyInterval]
+libapron.ap_interval_is_bottom.restype = c_bool
 libapron.ap_interval_is_top.argtypes = [PyInterval]
+libapron.ap_interval_is_top.restype = c_bool
 libapron.ap_interval_cmp.argtypes = [PyInterval, PyInterval]
 libapron.ap_interval_neg.argtypes = [PyInterval, PyInterval]
 

@@ -7,7 +7,7 @@ C DLLs
 from ctypes import util, CDLL, c_void_p
 
 libc = CDLL(util.find_library('c'))
-cstdout = c_void_p.in_dll(libc, '__stdoutp')
+# cstdout = c_void_p.in_dll(libc, '__stdoutp')            # Mac OS X
 
 libt1pD = CDLL(util.find_library('libt1pD.so'))
 libt1pMPQ = CDLL(util.find_library('libt1pMPQ.so'))

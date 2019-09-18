@@ -5,7 +5,7 @@ APRON Linear Expressions (Level 0)
 :Author: Caterina Urban
 """
 from _ctypes import Structure, Union, POINTER
-from ctypes import c_uint, c_size_t
+from ctypes import c_uint, c_size_t, c_bool
 from enum import IntEnum
 
 from apronpy.cdll import libapron
@@ -79,6 +79,10 @@ libapron.ap_linexpr0_minimize.argtypes = [POINTER(Linexpr0)]
 libapron.ap_linexpr0_copy.argtypes = [POINTER(Linexpr0)]
 libapron.ap_linexpr0_copy.restype = POINTER(Linexpr0)
 libapron.ap_linexpr0_is_integer.argtypes = [POINTER(Linexpr0), c_size_t]
+libapron.ap_linexpr0_is_integer.restype = c_bool
 libapron.ap_linexpr0_is_real.argtypes = [POINTER(Linexpr0), c_size_t]
+libapron.ap_linexpr0_is_real.restype = c_bool
 libapron.ap_linexpr0_is_linear.argtypes = [POINTER(Linexpr0)]
+libapron.ap_linexpr0_is_linear.restype = c_bool
 libapron.ap_linexpr0_is_quasilinear.argtypes = [POINTER(Linexpr0)]
+libapron.ap_linexpr0_is_quasilinear.restype = c_bool

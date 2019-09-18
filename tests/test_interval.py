@@ -75,6 +75,7 @@ class TestPyDoubleInterval(unittest.TestCase):
         self.assertTrue(PyDoubleInterval(-0.5, 0.5) > PyDoubleInterval())
         self.assertFalse(PyDoubleInterval(-0.5, 0.5) > PyDoubleInterval.top())
         self.assertTrue(PyDoubleInterval.top() > PyDoubleInterval(-0.5, 0.5))
+        self.assertTrue(PyDoubleInterval(-3, -1) <= PyDoubleInterval(PyDoubleScalar.init_infty(-1), PyDoubleScalar(-1)))
     
     def test_is_top(self):
         self.assertFalse(PyDoubleInterval().is_top())
@@ -152,6 +153,7 @@ class TestPyMPQInterval(unittest.TestCase):
         self.assertTrue(PyMPQInterval(-1, 1, 2, 2) > PyMPQInterval())
         self.assertFalse(PyMPQInterval(-1, 1, 2, 2) > PyMPQInterval.top())
         self.assertTrue(PyMPQInterval.top() > PyMPQInterval(-1, 1, 2, 2))
+        self.assertTrue(PyMPQInterval(-3, -1) <= PyMPQInterval(PyMPQScalar.init_infty(-1), PyMPQScalar(-1)))
     
     def test_is_top(self):
         self.assertFalse(PyMPQInterval().is_top())

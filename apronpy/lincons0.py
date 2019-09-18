@@ -5,6 +5,7 @@ APRON Linear Constraints (Level 0)
 :Author: Caterina Urban
 """
 from _ctypes import Structure, POINTER
+from ctypes import c_bool
 from enum import IntEnum
 
 from apronpy.cdll import libapron
@@ -73,3 +74,4 @@ class Lincons0Array(Structure):
 
 
 libapron.ap_lincons0_is_unsat.argtypes = [POINTER(Lincons0)]
+libapron.ap_lincons0_is_unsat.restype = c_bool
