@@ -125,14 +125,17 @@ class Lincons1Array(Structure):
 
 class PyLincons1:
 
-    def __init__(self, typ: ConsTyp, linexpr: PyLinexpr1, scalar: PyScalar = None):
-        self.lincons1 = Lincons1()
-        linexpr_copy = deepcopy(linexpr.linexpr1)
-        self.lincons1.lincons0.linexpr0 = linexpr_copy.linexpr0
-        self.lincons1.lincons0.constyp = c_uint(typ)
-        if scalar:
-            self.lincons1.lincons0.scalar = deepcopy(scalar)
-        self.lincons1.env = linexpr_copy.env
+    def __init__(self, lincons1_or_typ: Union[Lincons1, ConsTyp], linexpr: PyLinexpr1 = None, scalar: PyScalar = None):
+        if isinstance(lincons1_or_typ, Lincons1):
+            self.lincons1 = lincons1_or_typ
+        else:
+            self.lincons1 = Lincons1()
+            linexpr_copy = deepcopy(linexpr.linexpr1)
+            self.lincons1.lincons0.linexpr0 = linexpr_copy.linexpr0
+            self.lincons1.lincons0.constyp = c_uint(lincons1_or_typ)
+            if scalar:
+                self.lincons1.lincons0.scalar = deepcopy(scalar)
+            self.lincons1.env = linexpr_copy.env
 
     @classmethod
     def unsat(cls, environment: PyEnvironment):
@@ -245,11 +248,22 @@ class PyLincons1Array:
         assert isinstance(argument, PyLincons1Array)
         return argument
 
+    def __len__(self):
+        return self.lincons1array.lincons0_array.size
+
     def __repr__(self):
         return '{}'.format(self.lincons1array)
+
+    def get(self, i):
+        return PyLincons1(deepcopy(libapron.ap_lincons1_array_get(self, i)))
+
+    def set(self, i, lincons: PyLincons1):
+        libapron.ap_lincons1_array_set(self, i, deepcopy(lincons.lincons1))
 
 
 libapron.ap_lincons1_array_make.argtypes = [POINTER(Environment), c_size_t]
 libapron.ap_lincons1_array_make.restype = Lincons1Array
 libapron.ap_lincons1_array_clear.argtypes = [PyLincons1Array]
+libapron.ap_lincons1_array_get.argtypes = [PyLincons1Array, c_size_t]
+libapron.ap_lincons1_array_get.restype = Lincons1
 libapron.ap_lincons1_array_set.argtypes = [PyLincons1Array, c_size_t, POINTER(Lincons1)]

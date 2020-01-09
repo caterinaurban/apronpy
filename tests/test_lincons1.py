@@ -9,7 +9,7 @@ import unittest
 from apronpy.coeff import PyDoubleScalarCoeff
 from apronpy.environment import PyEnvironment
 from apronpy.lincons0 import ConsTyp
-from apronpy.lincons1 import PyLincons1
+from apronpy.lincons1 import PyLincons1, PyLincons1Array
 from apronpy.linexpr1 import PyLinexpr1
 from apronpy.var import PyVar
 
@@ -79,6 +79,54 @@ class TestPyLincons1(unittest.TestCase):
         c = PyLincons1(ConsTyp.AP_CONS_SUPEQ, x)
         c.set_coeff(PyVar('z'), PyDoubleScalarCoeff(-9))
         self.assertEqual(str(c), '-9.0·z + 0.0 >= 0')
+
+
+class TestPyLincons1Array(unittest.TestCase):
+
+    def test_init(self):
+        e = PyEnvironment([PyVar('x'), PyVar('y')], [PyVar('z')])
+        x1 = PyLinexpr1(e)
+        x1.set_coeff(PyVar('x'), PyDoubleScalarCoeff(3))
+        x1.set_coeff(PyVar('z'), PyDoubleScalarCoeff(-9))
+        x1.set_cst(PyDoubleScalarCoeff(8))
+        c1 = PyLincons1(ConsTyp.AP_CONS_SUPEQ, x1)
+        x2 = PyLinexpr1(e)
+        x2.set_coeff(PyVar('x'), PyDoubleScalarCoeff(1))
+        c2 = PyLincons1(ConsTyp.AP_CONS_SUP, x2)
+        a = PyLincons1Array([c1, c2])
+        self.assertEqual(str(a), '3.0·x - 9.0·z + 8.0 >= 0 ∧ 1.0·x + 0.0 > 0')
+
+    def test_get(self):
+        e = PyEnvironment([PyVar('x'), PyVar('y')], [PyVar('z')])
+        x1 = PyLinexpr1(e)
+        x1.set_coeff(PyVar('x'), PyDoubleScalarCoeff(3))
+        x1.set_coeff(PyVar('z'), PyDoubleScalarCoeff(-9))
+        x1.set_cst(PyDoubleScalarCoeff(8))
+        c1 = PyLincons1(ConsTyp.AP_CONS_SUPEQ, x1)
+        x2 = PyLinexpr1(e)
+        x2.set_coeff(PyVar('x'), PyDoubleScalarCoeff(1))
+        c2 = PyLincons1(ConsTyp.AP_CONS_SUP, x2)
+        a = PyLincons1Array([c1, c2])
+        c = a.get(1)
+        self.assertNotEqual(str(c), str(c1))
+        self.assertEqual(str(c), str(c2))
+
+    def test_set(self):
+        e = PyEnvironment([PyVar('x'), PyVar('y')], [PyVar('z')])
+        x1 = PyLinexpr1(e)
+        x1.set_coeff(PyVar('x'), PyDoubleScalarCoeff(3))
+        x1.set_coeff(PyVar('z'), PyDoubleScalarCoeff(-9))
+        x1.set_cst(PyDoubleScalarCoeff(8))
+        c1 = PyLincons1(ConsTyp.AP_CONS_SUPEQ, x1)
+        x2 = PyLinexpr1(e)
+        x2.set_coeff(PyVar('x'), PyDoubleScalarCoeff(1))
+        c2 = PyLincons1(ConsTyp.AP_CONS_SUP, x2)
+        a = PyLincons1Array([c1, c2])
+        x = PyLinexpr1(e)
+        x.set_coeff(PyVar('y'), PyDoubleScalarCoeff(1))
+        c = PyLincons1(ConsTyp.AP_CONS_SUP, x)
+        a.set(0, c)
+        self.assertEqual(str(a), '1.0·y + 0.0 > 0 ∧ 1.0·x + 0.0 > 0')
 
 
 if __name__ == '__main__':

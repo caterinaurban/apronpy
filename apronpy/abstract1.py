@@ -77,6 +77,9 @@ class PyAbstract1(metaclass=ABCMeta):
             assert isinstance(abstract1_or_environment, PyEnvironment)
             self.abstract1 = libapron.ap_abstract1_top(self.manager, abstract1_or_environment)
 
+    def closure(self):
+        return type(self)(self.manager, libapron.ap_abstract1_closure(self.manager, False, self))
+
     @classmethod
     def bottom(cls, manager: PyManager, environment: PyEnvironment):
         return cls(manager, environment, bottom=True)
@@ -308,6 +311,8 @@ libapron.ap_abstract1_join.argtypes = [man_p, c_bool, pya1, pya1]
 libapron.ap_abstract1_join.restype = Abstract1
 libapron.ap_abstract1_widening.argtypes = [man_p, pya1, pya1]
 libapron.ap_abstract1_widening.restype = Abstract1
+libapron.ap_abstract1_closure.argtypes = [man_p, c_bool, pya1]
+libapron.ap_abstract1_closure.restype = Abstract1
 pyl1 = PyLinexpr1
 pya1_p = POINTER(Abstract1)
 libapron.ap_abstract1_of_lincons_array.argtypes = [man_p, PyEnvironment, PyLincons1Array]
