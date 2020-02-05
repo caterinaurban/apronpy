@@ -5,7 +5,7 @@ APRON Tree Expressions (Level 1)
 :Author: Caterina Urban
 """
 from _ctypes import Structure, POINTER
-from ctypes import c_char_p, c_int
+from ctypes import c_char_p, c_int, c_bool
 from typing import Union
 
 from apronpy.cdll import libapron
@@ -122,6 +122,9 @@ class PyTexpr1:
     def __repr__(self):
         return '{}'.format(self.texpr1.contents)
 
+    def has_variable(self, var: PyVar):
+        return bool(libapron.ap_texpr1_has_var(self, var))
+
     def substitute(self, var: PyVar, dst: 'PyTexpr1'):
         return type(self)(libapron.ap_texpr1_substitute(self, var._as_parameter_, dst))
 
@@ -139,5 +142,7 @@ libapron.ap_texpr1_copy.restype = POINTER(Texpr1)
 libapron.ap_texpr1_free.argtypes = [PyTexpr1]
 libapron.ap_texpr1_from_linexpr1.argtypes = [PyLinexpr1]
 libapron.ap_texpr1_from_linexpr1.restype = POINTER(Texpr1)
+libapron.ap_texpr1_has_var.argtypes = [PyTexpr1, PyVar]
+libapron.ap_texpr1_has_var.restype = c_bool
 libapron.ap_texpr1_substitute.argtypes = [PyTexpr1, c_char_p, PyTexpr1]
 libapron.ap_texpr1_substitute.restype = POINTER(Texpr1)

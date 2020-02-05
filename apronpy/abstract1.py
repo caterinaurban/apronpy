@@ -129,6 +129,12 @@ class PyAbstract1(metaclass=ABCMeta):
     def environment(self) -> PyEnvironment:
         return PyEnvironment(libapron.ap_abstract1_environment(self.manager, self))
 
+    @environment.setter
+    def environment(self, environment: PyEnvironment):
+        e_size = len(environment)
+        a1 = libapron.ap_abstract1_change_environment(self.manager, False, self, environment, e_size, False)
+        self.abstract1 = a1
+
     def is_bottom(self):
         return bool(libapron.ap_abstract1_is_bottom(self.manager, self))
 
@@ -339,3 +345,6 @@ libapron.ap_abstract1_substitute_texpr.argtypes = [man_p, c_bool, pya1, PyVar, P
 libapron.ap_abstract1_substitute_texpr.restype = Abstract1
 libapron.ap_abstract1_forget_array.argtypes = [man_p, c_bool, pya1, pyvar_p, c_size_t, c_bool]
 libapron.ap_abstract1_forget_array.restype = Abstract1
+pyenv = PyEnvironment
+libapron.ap_abstract1_change_environment.argtypes = [man_p, c_bool, pya1, pyenv, c_size_t, c_bool]
+libapron.ap_abstract1_change_environment.restype = Abstract1
