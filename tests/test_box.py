@@ -7,10 +7,10 @@ APRON Boxes - Unit Tests
 import unittest
 from copy import deepcopy
 
-from apronpy.box import PyBox
+from apronpy.box import PyBox, PyBoxDManager, PyBoxMPQManager, PyBoxMPFRManager
 from apronpy.environment import PyEnvironment
 from apronpy.interval import PyDoubleInterval, PyMPQInterval, PyMPFRInterval
-from apronpy.manager import PyManager, PyBoxDManager, PyBoxMPQManager, PyBoxMPFRManager
+from apronpy.manager import PyManager
 from apronpy.texpr0 import TexprOp, TexprRtype, TexprRdir
 from apronpy.texpr1 import PyTexpr1
 from apronpy.var import PyVar
