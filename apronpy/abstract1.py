@@ -127,7 +127,9 @@ class PyAbstract1(metaclass=ABCMeta):
 
     @property
     def environment(self) -> PyEnvironment:
-        return PyEnvironment(libapron.ap_abstract1_environment(self.manager, self))
+        environment = libapron.ap_abstract1_environment(self.manager, self)
+        environment.contents.count += 1
+        return PyEnvironment(environment)
 
     @environment.setter
     def environment(self, environment: PyEnvironment):
