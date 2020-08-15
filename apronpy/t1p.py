@@ -5,10 +5,15 @@ APRON Taylor1+
 :Author: Caterina Urban
 """
 from _ctypes import POINTER
+from ctypes import CDLL
 
 from apronpy.abstract1 import PyAbstract1
-from apronpy.cdll import libt1pD, libt1pMPQ, libt1pMPFR
 from apronpy.manager import PyManager, Manager
+
+
+libt1pD = CDLL('libt1pD.so')
+libt1pMPQ = CDLL('libt1pMPQ.so')
+libt1pMPFR = CDLL('libt1pMPFR.so')
 
 
 class PyT1pDManager(PyManager):

@@ -5,10 +5,14 @@ APRON Polyhedra
 :Author: Caterina Urban
 """
 from _ctypes import POINTER
+from ctypes import CDLL
 
 from apronpy.abstract1 import PyAbstract1
-from apronpy.cdll import libpolkaMPQ, libpolkaRll
 from apronpy.manager import PyManager, Manager
+
+
+libpolkaMPQ = CDLL('libpolkaMPQ.so')
+libpolkaRll = CDLL('libpolkaRll.so')
 
 
 class PyPolkaMPQlooseManager(PyManager):
