@@ -25,3 +25,8 @@ Python Interface for the
     | --------------------------------- |
     | `./<env>/bin/pip install apronpy` | 
 
+## Troubleshooting
+
+For Mac OS X users, if you get an OSError when CDLL tries to load the apron
+libraries, try setting the APRON_LD_PATH environment variable to the
+directory where the libraries are located.

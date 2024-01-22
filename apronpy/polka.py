@@ -9,10 +9,11 @@ from ctypes import CDLL
 
 from apronpy.abstract1 import PyAbstract1
 from apronpy.manager import PyManager, Manager
+from apronpy.util import find_apron_library
 
 
-libpolkaMPQ = CDLL('libpolkaMPQ.so')
-libpolkaRll = CDLL('libpolkaRll.so')
+libpolkaMPQ = CDLL(find_apron_library('libpolkaMPQ.so'))
+libpolkaRll = CDLL(find_apron_library('libpolkaRll.so'))
 
 
 class PyPolkaMPQlooseManager(PyManager):

@@ -9,11 +9,12 @@ from ctypes import CDLL
 
 from apronpy.abstract1 import PyAbstract1
 from apronpy.manager import PyManager, Manager
+from apronpy.util import find_apron_library
 
 
-libt1pD = CDLL('libt1pD.so')
-libt1pMPQ = CDLL('libt1pMPQ.so')
-libt1pMPFR = CDLL('libt1pMPFR.so')
+libt1pD = CDLL(find_apron_library('libt1pD.so'))
+libt1pMPQ = CDLL(find_apron_library('libt1pMPQ.so'))
+libt1pMPFR = CDLL(find_apron_library('libt1pMPFR.so'))
 
 
 class PyT1pDManager(PyManager):
