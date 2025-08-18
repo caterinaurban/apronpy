@@ -42,7 +42,7 @@ class Lincons1(Structure):
         result.lincons0.linexpr0 = libapron.ap_linexpr0_copy(self.lincons0.linexpr0)
         result.lincons0.constyp = self.lincons0.constyp
         if self.lincons0.scalar:
-            self.lincons0.scalar = libapron.ap_scalar_alloc_set(self.lincons0.scalar)
+            result.lincons0.scalar = libapron.ap_scalar_alloc_set(self.lincons0.scalar)
         else:
             result.lincons0.scalar = None
         self.env.contents.count += 1
@@ -134,7 +134,7 @@ class PyLincons1:
             self.lincons1.lincons0.linexpr0 = linexpr_copy.linexpr0
             self.lincons1.lincons0.constyp = c_uint(lincons1_or_typ)
             if scalar:
-                self.lincons1.lincons0.scalar = deepcopy(scalar)
+                self.lincons1.lincons0.scalar = libapron.ap_scalar_alloc_set(scalar.scalar)
             self.lincons1.env = linexpr_copy.env
 
     @classmethod
