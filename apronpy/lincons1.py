@@ -134,7 +134,9 @@ class PyLincons1:
             self.lincons1.lincons0.linexpr0 = linexpr_copy.linexpr0
             self.lincons1.lincons0.constyp = c_uint(lincons1_or_typ)
             if scalar:
-                self.lincons1.lincons0.scalar = libapron.ap_scalar_alloc_set(scalar.scalar)
+                scalar_copy = deepcopy(scalar.scalar.contents)
+                s = libapron.ap_scalar_alloc_set(byref(scalar_copy))
+                self.lincons1.lincons0.scalar = s
             self.lincons1.env = linexpr_copy.env
 
     @classmethod

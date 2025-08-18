@@ -6,7 +6,9 @@ APRON Linear Constraints (Level 1) - Unit Tests
 """
 import unittest
 
-from apronpy.coeff import PyDoubleScalarCoeff
+from apronpy.scalar import PyMPQScalar
+
+from apronpy.coeff import PyDoubleScalarCoeff, PyMPQScalarCoeff
 from apronpy.environment import PyEnvironment
 from apronpy.lincons0 import ConsTyp
 from apronpy.lincons1 import PyLincons1, PyLincons1Array
@@ -18,14 +20,19 @@ class TestPyLincons1(unittest.TestCase):
 
     def test_init(self):
         e = PyEnvironment([PyVar('x0'), PyVar('y')], [PyVar('z')])
-        x = PyLinexpr1(e)
-        x.set_coeff(PyVar('x0'), PyDoubleScalarCoeff(3))
-        x.set_coeff(PyVar('z'), PyDoubleScalarCoeff(-9))
-        x.set_cst(PyDoubleScalarCoeff(8))
-        c = PyLincons1(ConsTyp.AP_CONS_SUPEQ, x)
-        self.assertEqual(str(c), '3.0·x0 - 9.0·z + 8.0 >= 0')
+        x1 = PyLinexpr1(e)
+        x1.set_coeff(PyVar('x0'), PyDoubleScalarCoeff(3))
+        x1.set_coeff(PyVar('z'), PyDoubleScalarCoeff(-9))
+        x1.set_cst(PyDoubleScalarCoeff(8))
+        c1 = PyLincons1(ConsTyp.AP_CONS_SUPEQ, x1)
+        self.assertEqual(str(c1), '3.0·x0 - 9.0·z + 8.0 >= 0')
         self.assertEqual(str(PyLincons1.unsat(e)), '-1.0 >= 0')
         self.assertEqual(str(PyLincons1(ConsTyp.AP_CONS_DISEQ, PyLinexpr1(e))), '0.0 != 0')
+        x2 = PyLinexpr1(e)
+        x2.set_coeff(PyVar('y'), PyMPQScalarCoeff(1))
+        k = PyMPQScalar(2)
+        c2 = PyLincons1(ConsTyp.AP_CONS_EQMOD, x2, k)
+        self.assertEqual(str(c2), '1·y + 0.0 %= 2')
 
     def test_is_unsat(self):
         e = PyEnvironment([PyVar('x0'), PyVar('y')], [PyVar('z')])
