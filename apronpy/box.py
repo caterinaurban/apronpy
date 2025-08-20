@@ -9,11 +9,12 @@ from ctypes import CDLL
 
 from apronpy.abstract1 import PyAbstract1
 from apronpy.manager import PyManager, Manager
+from apronpy.util import find_apron_library
 
 
-libboxD = CDLL('libboxD.so')
-libboxMPQ = CDLL('libboxMPQ.so')
-libboxMPFR = CDLL('libboxMPFR.so')
+libboxD = CDLL(find_apron_library('libboxD.so'))
+libboxMPQ = CDLL(find_apron_library('libboxMPQ.so'))
+libboxMPFR = CDLL(find_apron_library('libboxMPFR.so'))
 
 
 class PyBoxDManager(PyManager):

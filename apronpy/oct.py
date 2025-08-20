@@ -9,10 +9,11 @@ from ctypes import CDLL
 
 from apronpy.abstract1 import PyAbstract1
 from apronpy.manager import PyManager, Manager
+from apronpy.util import find_apron_library
 
 
-liboctD = CDLL('liboctD.so')
-liboctMPQ = CDLL('liboctMPQ.so')
+liboctD = CDLL(find_apron_library('liboctD.so'))
+liboctMPQ = CDLL(find_apron_library('liboctMPQ.so'))
 
 
 class PyOctDManager(PyManager):

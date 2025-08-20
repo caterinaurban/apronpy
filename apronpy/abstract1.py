@@ -6,7 +6,7 @@ APRON Abstract Values (Level 1)
 """
 from _ctypes import Structure, POINTER, byref
 from abc import ABCMeta
-from ctypes import c_size_t, c_char_p, c_bool
+from ctypes import ArgumentError, c_bool, c_char_p, c_size_t
 from typing import List, Type, Union
 
 from apronpy.abstract0 import Abstract0
@@ -101,8 +101,11 @@ class PyAbstract1(metaclass=ABCMeta):
         return result
 
     def __del__(self):
-        libapron.ap_abstract1_clear(self.manager, self)
-        del self.abstract1
+        try:
+            libapron.ap_abstract1_clear(self.manager, self)
+            del self.abstract1
+        except ArgumentError:
+            pass
 
     @property
     def _as_parameter_(self):
